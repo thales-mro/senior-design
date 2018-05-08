@@ -13,6 +13,7 @@
 #include <time.h>
 #include <iostream>
 #include <unistd.h>
+#include <random>
 
 #define MAX_X  6.0
 #define MAX_Y  4.0
@@ -34,7 +35,51 @@
 #define GOAL_SIZE 1.50
 #define N_MAP_ELEMENTS 6
 
+const int nstepsRange = 1000;
+const int nstepsFOV = 10000;
+double rangeDistr[10] = {};
+double FOVdistr[60] = {};
+std::default_random_engine generator;
+std::normal_distribution<double> distributionRange(2.5, 1.0);
+std::normal_distribution<double> distributionFOV(0.0, 10.0);
 
+void generateNormalDistributionRange() {
+	for(int i = 0; i < nstepsRange; ++i) {
+		double number = distributionRange(generator);
+		if((number>=0.0)&&(number<10.0)) ++rangeDistr[int(number)];
+	}
+	int maxElement = 0;
+	double max = 0;
+	for(int i = 0; i < 10; i++) {
+		if(rangeDistr[i] > max) {
+			max = rangeDistr[i];
+			maxElement = i;
+		}
+	}
+	for(int i = 0; i < 10; i++) {
+		rangeDistr[i] /= max;
+	}
+}
+
+void generateNormalDistributionFOV() {
+	for(int i = 0; i < nstepsFOV; ++i) {
+		double number = distributionFOV(generator);
+		if((number>=-30.0)&&(number<30.0)){
+			++FOVdistr[int(number + 30)];
+		}
+	}
+	int maxElement = 0;
+	double max = 0;
+	for(int i = 0; i < 60; i++) {
+		if(FOVdistr[i] > max) {
+			max = FOVdistr[i];
+			maxElement = i;
+		}
+	}
+	for(int i = 0; i < 60; i++) {
+		FOVdistr[i] /= max;
+	}
+}
 
 void resetOccupancyGrid(float m[][MAP_Y]) {
 	for(int i = 0; i < MAP_X; i++) {
@@ -53,7 +98,6 @@ void resetMap(int m[][MAP_Y][N_MAP_ELEMENTS]) {
 	}
 }
 
-
 void printInfo(std::string name, simxInt id, simxFloat coord[]) {
 	std::cout  << name <<  ":\n\tid: " << id << "\n\tposition:\n\t\tx: " << coord[0]
 			<< "\n\t\ty: " << coord[1] << "\n\t\tz: " << coord[2] << std::endl;
@@ -67,12 +111,12 @@ void printMapGroundTruth(int map[][MAP_Y][N_MAP_ELEMENTS]) {
 			}
 			else {
 				int sum = 0;
-				for(int k = 0; k < N_MAP_ELEMENTS; k++) {	
-					sum += map[i][j][k];			
+				for(int k = 0; k < N_MAP_ELEMENTS; k++) {
+					sum += map[i][j][k];
 				}
 				std::cout << std::setw(2) << sum << " ";
 
-				
+
 			}
 		}
 		std::cout << std::endl;
@@ -83,7 +127,7 @@ void printOccupancyGrid(float occupancy[][MAP_Y]) {
 	std::cout << "Occupancy grid" << std::endl;
 	for(int i = 0; i < MAP_X; i++) {
 		for(int j = 0; j < MAP_Y; j++) {
-			std::cout <<std::setw(2) << occupancy[i][j] <<  " ";
+			std::cout <<std::setw(5) << occupancy[i][j] <<  " ";
 		}
 		std::cout << std::endl;
 	}
@@ -97,8 +141,8 @@ void printMap(int map[][MAP_Y][N_MAP_ELEMENTS],  float occupancy[][MAP_Y]) {
 			}
 			else {
 				int sum = 0;
-				for(int k = 0; k < N_MAP_ELEMENTS; k++) {	
-					sum += map[i][j][k];			
+				for(int k = 0; k < N_MAP_ELEMENTS; k++) {
+					sum += map[i][j][k];
 				}
 				std::cout << std::setw(2) << sum << " ";
 
@@ -113,7 +157,7 @@ int convertX(simxFloat x) {
 	return x_pos;
 }
 
-int convertY(simxFloat y) { 
+int convertY(simxFloat y) {
 	int y_pos = (y + MAX_Y)/SCALE;
 	return y_pos;
 }
@@ -122,11 +166,9 @@ float xCoordToMeters(int x) {
 	return (x*SCALE) - MAX_X;
 }
 
-
 float yCoordToMeters(int y) {
 	return (y*SCALE) - MAX_Y;
 }
-
 
 void updateMap(int map[][MAP_Y][N_MAP_ELEMENTS], simxFloat coord[], int type) {
 	int x = convertX(coord[0]);
@@ -169,7 +211,7 @@ void updateOccupancyGrid2(float m[][MAP_Y], std::vector<simxFloat*>& robots_coor
 			bottomLim = M_PI - ((M_PI/6) - diff);
 			flag = 1;
 		}
-		else 
+		else
 			bottomLim = z_rotation - (M_PI/6);
 
 		if((z_rotation + (M_PI/6)) > M_PI) {
@@ -177,49 +219,55 @@ void updateOccupancyGrid2(float m[][MAP_Y], std::vector<simxFloat*>& robots_coor
 			upperLim = -M_PI + ((M_PI/6) - diff);
 			flag = 1;
 		}
-		else 
+		else
 			upperLim = z_rotation + (M_PI/6);
 		for(int i = 0; i < MAP_X; i++) {
 			x = xCoordToMeters(i);
 			diffX = x - x_robot;
 			for(int j = 0; j < MAP_Y; j++) {
 				if(modified[i][j] != 1)
-					m[i][j] = (m[i][j] > 0)?m[i][j] - m[i][j]*0.05 : 0;
+					m[i][j] = (m[i][j] > 0)?m[i][j] - m[i][j]*0.01 : 0;
 				y = yCoordToMeters(j);
 				diffY = y - y_robot;
 				dist = sqrt(pow(diffX, 2) + pow(diffY, 2));
 				if (dist < MAX_DISTANCE) {
 					simxFloat arcCos = acos((double)diffX/ (double)dist);
 					simxFloat arcSin = asin((double)diffY/ (double)dist);
-					simxFloat alpha = 0.0;				
-					if(arcSin > 0) 
+					simxFloat alpha = 0.0;
+					if(arcSin > 0)
 						alpha = arcCos;
-					else 
-						alpha = -arcCos;	
-				
+					else
+						alpha = -arcCos;
+
 					if(flag > 0) {
 						if((alpha >= bottomLim) && (alpha <= M_PI)) {
-							m[i][j] = 1;
+							double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
+							double aux = FOVdistr[int(angleInDegrees + 30)]*rangeDistr[int(dist)];
+							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
 							modified[i][j] = 1;
 						}
-						if((alpha >= -M_PI) && (alpha <= upperLim)) { 
-							m[i][j] = 1;
+						if((alpha >= -M_PI) && (alpha <= upperLim)) {
+							double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
+							double aux = FOVdistr[int(angleInDegrees + 30)]*rangeDistr[int(dist)];
+							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
 							modified[i][j] = 1;
 						}
 					}
 					else {
-						if((alpha >= bottomLim) && (alpha <= upperLim)) { 
-							m[i][j] = 1;
+						if((alpha >= bottomLim) && (alpha <= upperLim)) {
+							double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
+							double aux = FOVdistr[int(angleInDegrees + 30)]*rangeDistr[int(dist)];
+							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
 							modified[i][j] = 1;
 						}
 					}
-				}  
+				}
 			}
 		}
 		m[convertX(x_robot)][convertY(y_robot)] = 1;
-				
-	}	
-} 
+
+	}
+}
 
 void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientation[]) {
 	simxFloat x_robot = robot[0];
@@ -229,13 +277,13 @@ void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientat
 	simxFloat sin, cos, dist, x, y, diffX, diffY, upperLim, bottomLim;
 
 	int flag = 0;
-				
+
 	if((z_rotation - (M_PI/6)) < -M_PI) {
 		float diff = M_PI + z_rotation;
 		bottomLim = M_PI - ((M_PI/6) - diff);
 		flag = 1;
 	}
-	else 
+	else
 		bottomLim = z_rotation - (M_PI/6);
 
 	if((z_rotation + (M_PI/6)) > M_PI) {
@@ -243,9 +291,9 @@ void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientat
 		upperLim = -M_PI + ((M_PI/6) - diff);
 		flag = 1;
 	}
-	else 
+	else
 		upperLim = z_rotation + (M_PI/6);
-				
+
 	for(int i = 0; i < MAP_X; i++) {
 		x = xCoordToMeters(i);
 		diffX = x - x_robot;
@@ -257,24 +305,24 @@ void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientat
 			if (dist < MAX_DISTANCE) {
 				simxFloat arcCos = acos((double)diffX/ (double)dist);
 				simxFloat arcSin = asin((double)diffY/ (double)dist);
-				simxFloat alpha = 0.0;				
-				if(arcSin > 0) 
+				simxFloat alpha = 0.0;
+				if(arcSin > 0)
 					alpha = arcCos;
-				else 
-					alpha = -arcCos;	
-				
+				else
+					alpha = -arcCos;
+
 				if(flag > 0) {
-					if((alpha >= bottomLim) && (alpha <= M_PI)) 
+					if((alpha >= bottomLim) && (alpha <= M_PI))
 						m[i][j] = 1;
-					
-					if((alpha >= -M_PI) && (alpha <= upperLim)) 
+
+					if((alpha >= -M_PI) && (alpha <= upperLim))
 						m[i][j] = 1;
 				}
 				else {
-					if((alpha >= bottomLim) && (alpha <= upperLim)) 
+					if((alpha >= bottomLim) && (alpha <= upperLim))
 							m[i][j] = 1;
 				}
-			}  
+			}
 		}
 	}
 	m[convertX(x_robot)][convertY(y_robot)] = 1;
@@ -284,36 +332,38 @@ void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientat
 int main(int argc, char** argv) {
 	// First, we must connect to the v-rep simulator server
 	// For local connection, the IP is "127.0.0.1"
+	generateNormalDistributionRange();
+	generateNormalDistributionFOV();
 
 	auto sim = new Simulator("127.0.0.1", PORT_NUMBER);
 	Simulator &vrep = *sim;
-	vrep.connectServer();	
+	vrep.connectServer();
 
 	float max_x = 5.5;
 	float max_y = 4.0;
 
-	int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];	
+	int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
 	float occupancy[MAP_X][MAP_Y];
-	
+
 	resetMap(map);
 	resetOccupancyGrid(occupancy);
 
 	std::vector<simxInt> team_robots_ids;
-	std::vector<simxFloat*> team_robots_coords;		
-	std::vector<simxFloat*> team_robots_orient;	
+	std::vector<simxFloat*> team_robots_coords;
+	std::vector<simxFloat*> team_robots_orient;
 	std::vector<simxInt> opp_robots_ids;
-	std::vector<simxFloat*> opp_robots_coords;		
-	std::vector<simxFloat*> opp_robots_orient;	
+	std::vector<simxFloat*> opp_robots_coords;
+	std::vector<simxFloat*> opp_robots_orient;
 
 	simxInt self_id, robot0_id, robot1_id, robot2_id, robot3_id, robot4_id, robot5_id, robot6_id, robot7_id, robot8_id;
 	simxInt ball_id, goal_left_id, goal_right_id;
 
 	simxFloat self_coord[3], robot0_coord[3], robot1_coord[3], robot2_coord[3], robot3_coord[3], robot4_coord[3], robot5_coord[3], robot6_coord[3], robot7_coord[3], robot8_coord[3];
-	simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3];
+	simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3], aux_coord[3];
 
 	simxFloat self_orientation[3], robot0_orientation[3], robot1_orientation[3], robot2_orientation[3], robot3_orientation[3], robot4_orientation[3], robot5_orientation[3], robot6_orientation[3], robot7_orientation[3], robot8_orientation[3];
-	
-	
+
+
 	team_robots_ids.push_back(vrep.getHandle("NAO"));
 	team_robots_ids.push_back(vrep.getHandle("NAO#0"));
 	team_robots_ids.push_back(vrep.getHandle("NAO#1"));
@@ -349,7 +399,7 @@ int main(int argc, char** argv) {
 	//vrep.getObjectPosition(robot6_id, robot6_coord);
 	//vrep.getObjectPosition(robot7_id, robot7_coord);
 	//team_robots_coords.push_back(robot7_coord);
-	//vrep.getObjectPosition(robot8_id, robot8_coord);	
+	//vrep.getObjectPosition(robot8_id, robot8_coord);
 	//team_robots_coords.push_back(robot8_coord);
 
 	vrep.getObjectOrientation(team_robots_ids.at(0), self_orientation);
@@ -386,8 +436,8 @@ int main(int argc, char** argv) {
 	printInfo("Robot #5 Orientation", opp_robots_ids.at(2), robot5_orientation);
 	//printInfo("Robot #7 orientation", robot7_id, robot7_orientation);
 	//printInfo("Robot #8 orientation", robot8_id, robot8_orientation);
-	
-	
+
+
 	//initialize map with static elements
 	simxFloat aux[3];
 	for(float i = -FIELD_Y; i <= FIELD_Y; i+=SCALE) {
@@ -395,7 +445,7 @@ int main(int argc, char** argv) {
 		aux[1] = i;
 		updateMap(map, aux, FIELD_LIMITS);
 		aux[0] = FIELD_X;
-		updateMap(map, aux, FIELD_LIMITS);	
+		updateMap(map, aux, FIELD_LIMITS);
 	}
 	for(float i = -FIELD_X; i <= FIELD_X; i+=SCALE) {
 		aux[0] = i;
@@ -404,19 +454,19 @@ int main(int argc, char** argv) {
 		aux[1] = FIELD_Y;
 		updateMap(map, aux, FIELD_LIMITS);
 	}
-	
+
 	aux[0] = -4.5;
 	for(float i = goal_left_coord[1] - (GOAL_SIZE)/2; i < goal_left_coord[1] + (GOAL_SIZE)/2; i += 0.25 ) {
 		aux[1] = i;
 		updateMap(map, aux, TEAM_GOAL);
 	}
-	
+
 	aux[0] = goal_right_coord[0];
 	for(float i = goal_right_coord[1] - (GOAL_SIZE)/2; i < goal_right_coord[1] + (GOAL_SIZE)/2; i += 0.25 ) {
 		aux[1] = i;
 		updateMap(map, aux, OPP_GOAL);
 	}
-	//initialize map with robots and ball`s inicial position 
+	//initialize map with robots and ball`s inicial position
 	updateMap(map, self_coord, TEAM_ROBOT);
 	updateMap(map, robot0_coord, TEAM_ROBOT);
 	updateMap(map, robot1_coord, TEAM_ROBOT);
@@ -425,7 +475,7 @@ int main(int argc, char** argv) {
 	updateMap(map, robot4_coord, OPP_ROBOT);
 	updateMap(map, robot5_coord, OPP_ROBOT);
 	updateMap(map, robot6_coord, TEAM_ROBOT);
-	
+
 	updateMap(map, ball_coord, BALL);
 
 	//printMapGroundTruth(map);
@@ -433,26 +483,38 @@ int main(int argc, char** argv) {
 	//updateOccupancyGrid(occupancy, self_coord, self_orientation);
 
 	updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
-	
-	//printOccupancyGrid(occupancy);
+
+	printOccupancyGrid(occupancy);
 
 	//printMap(map, occupancy);
 
-	//self_coord[0] = 4.0;
-	//self_coord[1] = 3.0;
+	// self_coord[0] = 1.0;
+	// self_coord[1] = 4.0;
+	// team_robots_coords.pop_back();
+	// vrep.getObjectPosition(team_robots_ids.at(0), self_coord);
+	// team_robots_coords.push_back(self_coord);
+
 	std::cout.precision(2);
 	while(true) {
-		sleep(1);	
-		//updateMap(map, self_coord, TEAM_ROBOT);		
+		sleep(1);
+		team_robots_coords.clear();
+		team_robots_orient.clear();
+		for(auto const& id : team_robots_ids) {
+			vrep.getObjectPosition(id, aux_coord);
+			team_robots_coords.push_back(aux_coord);
+			vrep.getObjectOrientation(id, aux_coord);
+			team_robots_orient.push_back(aux_coord);
+		}
+		//updateMap(map, self_coord, TEAM_ROBOT);
 //		updateOccupancyGrid(occupancy, self_coord, self_orientation);
 //		updateOccupancyGrid(occupancy, robot5_coord, robot5_orientation);
-		updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);		
-		
+		updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
 
-		//printOccupancyGrid(occupancy);
-		printMap(map, occupancy);
+		//printMapGroundTruth(map);
+		printOccupancyGrid(occupancy);
+		//printMap(map, occupancy);
 	}
-	
+
 	vrep.disconnectServer();
 	return 0;
 }
