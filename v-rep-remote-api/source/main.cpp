@@ -114,7 +114,7 @@ int convertX(simxFloat x) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 int convertY(simxFloat y) {
-	int y_pos = (y + MAX_Y)/SCALE;
+	int y_pos = (MAP_Y/2) - (y/SCALE);
 	return y_pos;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +123,7 @@ float xCoordToMeters(int x) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 float yCoordToMeters(int y) {
-	return (y*SCALE) - MAX_Y;
+	return ((MAP_Y/2) - y)*SCALE;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void updateMap(int map[][MAP_Y][N_MAP_ELEMENTS], simxFloat coord[], int type) {
@@ -219,117 +219,121 @@ void printMap(int map[][MAP_Y][N_MAP_ELEMENTS],  float occupancy[][MAP_Y]) {
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
+simxFloat calculateBottomLim(simxFloat z_angle, int* flag) {
+	if((z_angle - (M_PI/6)) < -M_PI) {
+		float diff = M_PI + z_angle;
+		*flag = 1;
+		return (M_PI - ((M_PI/6) - diff));
+	}
+	return (z_angle - (M_PI/6));
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+simxFloat calculateUpperLim(simxFloat z_angle, int* flag) {
+	if((z_angle + (M_PI/6)) > M_PI) {
+		float diff = M_PI - z_angle;
+		*flag = 1;
+		return (-M_PI + ((M_PI/6) - diff));
+	}
+		return(z_angle + (M_PI/6));
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+simxFloat calculateAngle(simxFloat diffX, simxFloat diffY, simxFloat dist) {
+	//simxFloat hip = sqrt(pow(x, 2) + pow(y, 2));
+	simxFloat arcCos = acos((double)diffX/ (double)dist);
+	simxFloat arcSin = asin((double)diffY/ (double)dist);
+	simxFloat alpha = 0.0;
+	if(arcSin > 0)
+		return arcCos;
+	return -1*arcCos;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
 simxFloat calculateDistributionBasedOnAngleInDegrees(simxFloat alpha, simxFloat robotAngle, simxFloat dist) {
 	simxFloat angleInDegrees = (std::abs(alpha - robotAngle)*180)/M_PI;
 	simxFloat result = FOVdistr[int(angleInDegrees + 30)]*rangeDistr[int(dist)];
 	return result;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
+void setOccupation(float m[][MAP_Y], float modified[][MAP_Y], int i, int j, simxFloat alpha, simxFloat z_angle, simxFloat dist) {
+	//double angleInDegrees = (std::abs(alpha - z_angle)*180)/M_PI;
+	double aux = calculateDistributionBasedOnAngleInDegrees(alpha, z_angle, dist);
+	m[i][j] = (aux > m[i][j]?aux:m[i][j]);
+	modified[i][j] = 1;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void updateOccupancyGrid2(float m[][MAP_Y], const std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& robots_coords, 	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& robots_orient) {
 	float modified[MAP_X][MAP_Y];
 	resetOccupancyGrid(modified);
 	for(int index = 0; index < robots_coords.size(); index++) {
+		simxFloat dist, x, y, diffX, diffY, upperLim, bottomLim;
+		int flag = 0;
 		boost::tuple<simxFloat, simxFloat, simxFloat> coord = robots_coords.at(index);
 		boost::tuple<simxFloat, simxFloat, simxFloat> orient = robots_orient.at(index);
-		simxFloat x_robot = boost::get<0>(coord);
-		simxFloat y_robot = boost::get<1>(coord);
-		simxFloat z_rotation = boost::get<2>(orient);
-		simxFloat sin, cos, dist, x, y, diffX, diffY, upperLim, bottomLim;
-		int flag = 0;
-		if((z_rotation - (M_PI/6)) < -M_PI) {
-			float diff = M_PI + z_rotation;
-			bottomLim = M_PI - ((M_PI/6) - diff);
-			flag = 1;
-		}
-		else
-			bottomLim = z_rotation - (M_PI/6);
+		simxFloat x_coord = boost::get<0>(coord);
+		simxFloat y_coord = boost::get<1>(coord);
+		simxFloat z_angle = boost::get<2>(orient);
+		bottomLim = calculateBottomLim(z_angle, &flag);
+		upperLim = calculateUpperLim(z_angle, &flag);
 
-		if((z_rotation + (M_PI/6)) > M_PI) {
-			float diff = M_PI - z_rotation;
-			upperLim = -M_PI + ((M_PI/6) - diff);
-			flag = 1;
-		}
-		else
-			upperLim = z_rotation + (M_PI/6);
 		for(int i = 0; i < MAP_X; i++) {
 			x = xCoordToMeters(i);
-			diffX = x - x_robot;
+			diffX = x - x_coord;
 			for(int j = 0; j < MAP_Y; j++) {
 				if(modified[i][j] != 1)
-					m[i][j] = (m[i][j] > 0)?m[i][j] - m[i][j]*0.01 : 0;
+					m[i][j] = (m[i][j] > 0)?m[i][j] - m[i][j]*0.05 : 0;
 				y = yCoordToMeters(j);
-				diffY = y - y_robot;
+				diffY = y - y_coord;
 				dist = sqrt(pow(diffX, 2) + pow(diffY, 2));
 				if (dist < MAX_DISTANCE) {
-					simxFloat arcCos = acos((double)diffX/ (double)dist);
-					simxFloat arcSin = asin((double)diffY/ (double)dist);
-					simxFloat alpha = 0.0;
-					if(arcSin > 0)
-						alpha = arcCos;
-					else
-						alpha = -arcCos;
-
+					simxFloat alpha = calculateAngle(diffX, diffY, dist);
 					if(flag > 0) {
-						if((alpha >= bottomLim) && (alpha <= M_PI)) {
-							//double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
-							double aux = calculateDistributionBasedOnAngleInDegrees(alpha, z_rotation, dist);
-							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
-							modified[i][j] = 1;
-						}
-						if((alpha >= -M_PI) && (alpha <= upperLim)) {
-							//double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
-							double aux = calculateDistributionBasedOnAngleInDegrees(alpha, z_rotation, dist);
-							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
-							modified[i][j] = 1;
-						}
+						if((alpha >= bottomLim) && (alpha <= M_PI))
+							setOccupation(m, modified, i, j, alpha, z_angle, dist);
+						if((alpha >= -M_PI) && (alpha <= upperLim))
+							setOccupation(m, modified, i, j, alpha, z_angle, dist);
 					}
-					else {
-						if((alpha >= bottomLim) && (alpha <= upperLim)) {
-							//double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
-							double aux = calculateDistributionBasedOnAngleInDegrees(alpha, z_rotation, dist);
-							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
-							modified[i][j] = 1;
-						}
-					}
+					else
+						if((alpha >= bottomLim) && (alpha <= upperLim))
+							setOccupation(m, modified, i, j, alpha, z_angle, dist);
 				}
 			}
 		}
-		m[convertX(x_robot)][convertY(y_robot)] = 1;
+		m[convertX(x_coord)][convertY(y_coord)] = 1;
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientation[]) {
-	simxFloat x_robot = robot[0];
-	simxFloat y_robot = robot[1];
-	simxFloat z_rotation = orientation[2];
-	std::cout << "Orientacao: " << z_rotation << std::endl;
+	simxFloat x_coord = robot[0];
+	simxFloat y_coord = robot[1];
+	simxFloat z_angle = orientation[2];
+	std::cout << "Orientacao: " << z_angle << std::endl;
 	simxFloat sin, cos, dist, x, y, diffX, diffY, upperLim, bottomLim;
 
 	int flag = 0;
 
-	if((z_rotation - (M_PI/6)) < -M_PI) {
-		float diff = M_PI + z_rotation;
+	if((z_angle - (M_PI/6)) < -M_PI) {
+		float diff = M_PI + z_angle;
 		bottomLim = M_PI - ((M_PI/6) - diff);
 		flag = 1;
 	}
 	else
-		bottomLim = z_rotation - (M_PI/6);
+		bottomLim = z_angle - (M_PI/6);
 
-	if((z_rotation + (M_PI/6)) > M_PI) {
-		float diff = M_PI - z_rotation;
+	if((z_angle + (M_PI/6)) > M_PI) {
+		float diff = M_PI - z_angle;
 		upperLim = -M_PI + ((M_PI/6) - diff);
 		flag = 1;
 	}
 	else
-		upperLim = z_rotation + (M_PI/6);
+		upperLim = z_angle + (M_PI/6);
 
 	for(int i = 0; i < MAP_X; i++) {
 		x = xCoordToMeters(i);
-		diffX = x - x_robot;
+		diffX = x - x_coord;
 		for(int j = 0; j < MAP_Y; j++) {
 			m[i][j] = (m[i][j] > 0)?m[i][j] - m[i][j]*0.05 : 0;
-			y = yCoordToMeters(j);
-			diffY = y - y_robot;
+			y =
+			(j);
+			diffY = y - y_coord;
 			dist = sqrt(pow(diffX, 2) + pow(diffY, 2));
 			if (dist < MAX_DISTANCE) {
 				simxFloat arcCos = acos((double)diffX/ (double)dist);
@@ -354,18 +358,20 @@ void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientat
 			}
 		}
 	}
-	m[convertX(x_robot)][convertY(y_robot)] = 1;
+	m[convertX(x_coord)][convertY(y_coord)] = 1;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void printGnuPlot(float occupancyGrid[][MAP_Y]) {
 
+	gp << "set xrange [-6:6]\n";
+	gp << "set yrange [-6:6]\n";
 	gp << "set zrange [-1:1]\n";
 	gp << "set hidden3d nooffset\n";
 	gp << "splot ";
 	{
 		double step = SCALE;
 		double startX = -FIELD_X;
-		double startY = -FIELD_Y;
+		double startY = FIELD_Y;
 		double stepX = startX, stepY, stepZ;
 		std::vector<std::vector<boost::tuple<double,double,double> > > pts(MAP_X);
 		for(int u = 0; u < MAP_X; u++) {
@@ -374,7 +380,7 @@ void printGnuPlot(float occupancyGrid[][MAP_Y]) {
 			for(int v = 0; v < MAP_Y; v++) {
 				stepZ = occupancyGrid[u][v];
 				pts[u][v] = boost::make_tuple(stepX, stepY, stepZ);
-				stepY += step;
+				stepY -= step;
 			}
 			stepX += step;
 		}
@@ -471,11 +477,10 @@ int main(int argc, char** argv) {
 	updateMap(map, ball_coord, BALL);
 	updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
 	printGnuPlot(occupancy);
-	std::cout.precision(2);
-
+	//std::cout.precision(2);
 
 	while(true) {
-		sleep(2);
+		sleep(1);
 		team_robots_coords.clear();
 		team_robots_orient.clear();
 		for(auto const& id : team_robots_ids) {
@@ -493,7 +498,6 @@ int main(int argc, char** argv) {
 		updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
 		printGnuPlot(occupancy);
 	}
-
 
 	vrep.disconnectServer();
 	return 0;
