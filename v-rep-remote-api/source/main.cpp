@@ -14,6 +14,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <random>
+#include <boost/tuple/tuple.hpp>
+#include "/home/thales/gnuplot-iostream/gnuplot-iostream.h"
+
+using namespace std;
 
 #define MAX_X  6.0
 #define MAX_Y  4.0
@@ -35,6 +39,7 @@
 #define GOAL_SIZE 1.50
 #define N_MAP_ELEMENTS 6
 
+Gnuplot gp;
 const int nstepsRange = 1000;
 const int nstepsFOV = 10000;
 double rangeDistr[10] = {};
@@ -42,7 +47,7 @@ double FOVdistr[60] = {};
 std::default_random_engine generator;
 std::normal_distribution<double> distributionRange(2.5, 1.0);
 std::normal_distribution<double> distributionFOV(0.0, 10.0);
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void generateNormalDistributionRange() {
 	for(int i = 0; i < nstepsRange; ++i) {
 		double number = distributionRange(generator);
@@ -60,7 +65,7 @@ void generateNormalDistributionRange() {
 		rangeDistr[i] /= max;
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void generateNormalDistributionFOV() {
 	for(int i = 0; i < nstepsFOV; ++i) {
 		double number = distributionFOV(generator);
@@ -80,7 +85,7 @@ void generateNormalDistributionFOV() {
 		FOVdistr[i] /= max;
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void resetOccupancyGrid(float m[][MAP_Y]) {
 	for(int i = 0; i < MAP_X; i++) {
 		for(int j = 0; j < MAP_Y; j++) {
@@ -88,7 +93,7 @@ void resetOccupancyGrid(float m[][MAP_Y]) {
 		}
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void resetMap(int m[][MAP_Y][N_MAP_ELEMENTS]) {
 	for(int i = 0; i < MAP_X; i++) {
 		for(int j = 0; j < MAP_Y; j++ ) {
@@ -97,79 +102,30 @@ void resetMap(int m[][MAP_Y][N_MAP_ELEMENTS]) {
 		}
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void printInfo(std::string name, simxInt id, simxFloat coord[]) {
 	std::cout  << name <<  ":\n\tid: " << id << "\n\tposition:\n\t\tx: " << coord[0]
 			<< "\n\t\ty: " << coord[1] << "\n\t\tz: " << coord[2] << std::endl;
 }
-
-void printMapGroundTruth(int map[][MAP_Y][N_MAP_ELEMENTS]) {
-	for(int i = 0; i < MAP_X; i++) {
-		for(int j = 0; j < MAP_Y; j++ ) {
-			if(map[i][j] == 0) {
-				std::cout << "-" << " ";
-			}
-			else {
-				int sum = 0;
-				for(int k = 0; k < N_MAP_ELEMENTS; k++) {
-					sum += map[i][j][k];
-				}
-				std::cout << std::setw(2) << sum << " ";
-
-
-			}
-		}
-		std::cout << std::endl;
-	}
-}
-
-void printOccupancyGrid(float occupancy[][MAP_Y]) {
-	std::cout << "Occupancy grid" << std::endl;
-	for(int i = 0; i < MAP_X; i++) {
-		for(int j = 0; j < MAP_Y; j++) {
-			std::cout <<std::setw(5) << occupancy[i][j] <<  " ";
-		}
-		std::cout << std::endl;
-	}
-}
-
-void printMap(int map[][MAP_Y][N_MAP_ELEMENTS],  float occupancy[][MAP_Y]) {
-	for(int i = 0; i < MAP_X; i++) {
-		for(int j = 0; j < MAP_Y; j++ ) {
-			if(occupancy[i][j] < 0.25) {
-				std::cout << std::setw(2) << "-" << " ";
-			}
-			else {
-				int sum = 0;
-				for(int k = 0; k < N_MAP_ELEMENTS; k++) {
-					sum += map[i][j][k];
-				}
-				std::cout << std::setw(2) << sum << " ";
-
-			}
-		}
-		std::cout << std::endl;
-	}
-}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 int convertX(simxFloat x) {
 	int x_pos = (x + MAX_X)/SCALE;
 	return x_pos;
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 int convertY(simxFloat y) {
 	int y_pos = (y + MAX_Y)/SCALE;
 	return y_pos;
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 float xCoordToMeters(int x) {
 	return (x*SCALE) - MAX_X;
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 float yCoordToMeters(int y) {
 	return (y*SCALE) - MAX_Y;
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void updateMap(int map[][MAP_Y][N_MAP_ELEMENTS], simxFloat coord[], int type) {
 	int x = convertX(coord[0]);
 	int y = convertY(coord[1]);
@@ -194,16 +150,90 @@ void updateMap(int map[][MAP_Y][N_MAP_ELEMENTS], simxFloat coord[], int type) {
 			break;
 	}
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void feedMap(int map[][MAP_Y][N_MAP_ELEMENTS]) {
+	//initialize map with static elements
+	simxFloat aux[3];
+	for(float i = -FIELD_Y; i <= FIELD_Y; i+=SCALE) {
+		aux[0] = -FIELD_X;
+		aux[1] = i;
+		updateMap(map, aux, FIELD_LIMITS);
+		aux[0] = FIELD_X;
+		updateMap(map, aux, FIELD_LIMITS);
+	}
+	for(float i = -FIELD_X; i <= FIELD_X; i+=SCALE) {
+		aux[0] = i;
+		aux[1] = -FIELD_Y;
+		updateMap(map, aux, FIELD_LIMITS);
+		aux[1] = FIELD_Y;
+		updateMap(map, aux, FIELD_LIMITS);
+	}
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void printMapGroundTruth(int map[][MAP_Y][N_MAP_ELEMENTS]) {
+	for(int i = 0; i < MAP_X; i++) {
+		for(int j = 0; j < MAP_Y; j++ ) {
+			if(map[i][j] == 0) {
+				std::cout << "-" << " ";
+			}
+			else {
+				int sum = 0;
+				for(int k = 0; k < N_MAP_ELEMENTS; k++) {
+					sum += map[i][j][k];
+				}
+				std::cout << std::setw(2) << sum << " ";
 
-void updateOccupancyGrid2(float m[][MAP_Y], std::vector<simxFloat*>& robots_coords, std::vector<simxFloat*>& robots_orient) {
+
+			}
+		}
+		std::cout << std::endl;
+	}
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void printOccupancyGrid(float occupancy[][MAP_Y]) {
+	std::cout << "Occupancy grid" << std::endl;
+	for(int i = 0; i < MAP_X; i++) {
+		for(int j = 0; j < MAP_Y; j++) {
+			std::cout <<std::setw(5) << occupancy[i][j] <<  " ";
+		}
+		std::cout << std::endl;
+	}
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void printMap(int map[][MAP_Y][N_MAP_ELEMENTS],  float occupancy[][MAP_Y]) {
+	for(int i = 0; i < MAP_X; i++) {
+		for(int j = 0; j < MAP_Y; j++ ) {
+			if(occupancy[i][j] < 0.25) {
+				std::cout << std::setw(2) << "-" << " ";
+			}
+			else {
+				int sum = 0;
+				for(int k = 0; k < N_MAP_ELEMENTS; k++) {
+					sum += map[i][j][k];
+				}
+				std::cout << std::setw(2) << sum << " ";
+
+			}
+		}
+		std::cout << std::endl;
+	}
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+simxFloat calculateDistributionBasedOnAngleInDegrees(simxFloat alpha, simxFloat robotAngle, simxFloat dist) {
+	simxFloat angleInDegrees = (std::abs(alpha - robotAngle)*180)/M_PI;
+	simxFloat result = FOVdistr[int(angleInDegrees + 30)]*rangeDistr[int(dist)];
+	return result;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void updateOccupancyGrid2(float m[][MAP_Y], const std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& robots_coords, 	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& robots_orient) {
 	float modified[MAP_X][MAP_Y];
 	resetOccupancyGrid(modified);
 	for(int index = 0; index < robots_coords.size(); index++) {
-		simxFloat *coords = robots_coords.at(index);
-		simxFloat x_robot = coords[0];
-		simxFloat y_robot = coords[1];
-		simxFloat *orientation = robots_orient.at(index);
-		simxFloat z_rotation = orientation[2];
+		boost::tuple<simxFloat, simxFloat, simxFloat> coord = robots_coords.at(index);
+		boost::tuple<simxFloat, simxFloat, simxFloat> orient = robots_orient.at(index);
+		simxFloat x_robot = boost::get<0>(coord);
+		simxFloat y_robot = boost::get<1>(coord);
+		simxFloat z_rotation = boost::get<2>(orient);
 		simxFloat sin, cos, dist, x, y, diffX, diffY, upperLim, bottomLim;
 		int flag = 0;
 		if((z_rotation - (M_PI/6)) < -M_PI) {
@@ -241,22 +271,22 @@ void updateOccupancyGrid2(float m[][MAP_Y], std::vector<simxFloat*>& robots_coor
 
 					if(flag > 0) {
 						if((alpha >= bottomLim) && (alpha <= M_PI)) {
-							double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
-							double aux = FOVdistr[int(angleInDegrees + 30)]*rangeDistr[int(dist)];
+							//double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
+							double aux = calculateDistributionBasedOnAngleInDegrees(alpha, z_rotation, dist);
 							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
 							modified[i][j] = 1;
 						}
 						if((alpha >= -M_PI) && (alpha <= upperLim)) {
-							double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
-							double aux = FOVdistr[int(angleInDegrees + 30)]*rangeDistr[int(dist)];
+							//double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
+							double aux = calculateDistributionBasedOnAngleInDegrees(alpha, z_rotation, dist);
 							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
 							modified[i][j] = 1;
 						}
 					}
 					else {
 						if((alpha >= bottomLim) && (alpha <= upperLim)) {
-							double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
-							double aux = FOVdistr[int(angleInDegrees + 30)]*rangeDistr[int(dist)];
+							//double angleInDegrees = (std::abs(alpha - z_rotation)*180)/M_PI;
+							double aux = calculateDistributionBasedOnAngleInDegrees(alpha, z_rotation, dist);
 							m[i][j] = (aux > m[i][j]?aux:m[i][j]);
 							modified[i][j] = 1;
 						}
@@ -265,10 +295,9 @@ void updateOccupancyGrid2(float m[][MAP_Y], std::vector<simxFloat*>& robots_coor
 			}
 		}
 		m[convertX(x_robot)][convertY(y_robot)] = 1;
-
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientation[]) {
 	simxFloat x_robot = robot[0];
 	simxFloat y_robot = robot[1];
@@ -327,9 +356,46 @@ void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientat
 	}
 	m[convertX(x_robot)][convertY(y_robot)] = 1;
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void printGnuPlot(float occupancyGrid[][MAP_Y]) {
 
+	gp << "set zrange [-1:1]\n";
+	gp << "set hidden3d nooffset\n";
+	gp << "splot ";
+	{
+		double step = SCALE;
+		double startX = -FIELD_X;
+		double startY = -FIELD_Y;
+		double stepX = startX, stepY, stepZ;
+		std::vector<std::vector<boost::tuple<double,double,double> > > pts(MAP_X);
+		for(int u = 0; u < MAP_X; u++) {
+			pts[u].resize(MAP_Y);
+			stepY = startY;
+			for(int v = 0; v < MAP_Y; v++) {
+				stepZ = occupancyGrid[u][v];
+				pts[u][v] = boost::make_tuple(stepX, stepY, stepZ);
+				stepY += step;
+			}
+			stepX += step;
+		}
+		gp << gp.binFile2d(pts, "record") << "with lines title 'vec of vec of boost::tuple'";
+	}
+	gp << std::endl;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char** argv) {
+	simxInt ball_id, goal_left_id, goal_right_id;
+	simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3], aux_coord[3];
+	std::vector<std::string> team_robots;
+	std::vector<simxInt> team_robots_ids;
+	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> team_robots_coords;
+	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> team_robots_orient;
+	std::vector<std::string> opp_robots;
+	std::vector<simxInt> opp_robots_ids;
+	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>  opp_robots_coords;
+	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>  opp_robots_orient;
+
 	// First, we must connect to the v-rep simulator server
 	// For local connection, the IP is "127.0.0.1"
 	generateNormalDistributionRange();
@@ -339,181 +405,95 @@ int main(int argc, char** argv) {
 	Simulator &vrep = *sim;
 	vrep.connectServer();
 
-	float max_x = 5.5;
-	float max_y = 4.0;
-
 	int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
 	float occupancy[MAP_X][MAP_Y];
 
 	resetMap(map);
 	resetOccupancyGrid(occupancy);
 
-	std::vector<simxInt> team_robots_ids;
-	std::vector<simxFloat*> team_robots_coords;
-	std::vector<simxFloat*> team_robots_orient;
-	std::vector<simxInt> opp_robots_ids;
-	std::vector<simxFloat*> opp_robots_coords;
-	std::vector<simxFloat*> opp_robots_orient;
+	team_robots.push_back("NAO");
+	team_robots.push_back("NAO#0");
+	team_robots.push_back("NAO#1");
+	team_robots.push_back("NAO#2");
+	opp_robots.push_back("NAO#3");
+	opp_robots.push_back("NAO#4");
+	opp_robots.push_back("NAO#5");
 
-	simxInt self_id, robot0_id, robot1_id, robot2_id, robot3_id, robot4_id, robot5_id, robot6_id, robot7_id, robot8_id;
-	simxInt ball_id, goal_left_id, goal_right_id;
+	for(const auto robotName : team_robots) {
+		team_robots_ids.push_back(vrep.getHandle(robotName));
+		std::cout << robotName << std::endl;
+	}
+	for(const auto robotName : opp_robots)
+		opp_robots_ids.push_back(vrep.getHandle(robotName));
 
-	simxFloat self_coord[3], robot0_coord[3], robot1_coord[3], robot2_coord[3], robot3_coord[3], robot4_coord[3], robot5_coord[3], robot6_coord[3], robot7_coord[3], robot8_coord[3];
-	simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3], aux_coord[3];
-
-	simxFloat self_orientation[3], robot0_orientation[3], robot1_orientation[3], robot2_orientation[3], robot3_orientation[3], robot4_orientation[3], robot5_orientation[3], robot6_orientation[3], robot7_orientation[3], robot8_orientation[3];
-
-
-	team_robots_ids.push_back(vrep.getHandle("NAO"));
-	team_robots_ids.push_back(vrep.getHandle("NAO#0"));
-	team_robots_ids.push_back(vrep.getHandle("NAO#1"));
-	team_robots_ids.push_back(vrep.getHandle("NAO#2"));
-	opp_robots_ids.push_back(vrep.getHandle("NAO#3"));
-	opp_robots_ids.push_back(vrep.getHandle("NAO#4"));
-	opp_robots_ids.push_back(vrep.getHandle("NAO#5"));
-	//robot6_id = vrep.getHandle("NAO#6");
-	//team_robots_ids.push_back(vrep.getHandle("NAO#7"));
-	//team_robots_ids.push_back(vrep.getHandle("NAO#8"));
 	ball_id = vrep.getHandle("Ball");
 	goal_left_id = vrep.getHandle("Goal_left");
 	goal_right_id = vrep.getHandle("Goal_right");
 
-	vrep.getObjectPosition(team_robots_ids.at(0), self_coord);
-	team_robots_coords.push_back(self_coord);
-	vrep.getObjectPosition(team_robots_ids.at(1), robot0_coord);
-	team_robots_coords.push_back(robot0_coord);
-	vrep.getObjectPosition(team_robots_ids.at(2), robot1_coord);
-	team_robots_coords.push_back(robot1_coord);
-	vrep.getObjectPosition(team_robots_ids.at(3), robot2_coord);
-	team_robots_coords.push_back(robot2_coord);
-	vrep.getObjectPosition(opp_robots_ids.at(0), robot3_coord);
-	opp_robots_coords.push_back(robot3_coord);
-	vrep.getObjectPosition(opp_robots_ids.at(1), robot4_coord);
-	opp_robots_coords.push_back(robot4_coord);
-	vrep.getObjectPosition(opp_robots_ids.at(2), robot5_coord);
-	opp_robots_coords.push_back(robot5_coord);
+	for(auto robotId : team_robots_ids) {
+		vrep.getObjectPosition(robotId, aux_coord);
+		team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+		vrep.getObjectOrientation(robotId, aux_coord);
+		team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+	}
+	for(const auto robotId : opp_robots_ids) {
+		vrep.getObjectPosition(robotId, aux_coord);
+		opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+		vrep.getObjectOrientation(robotId, aux_coord);
+		opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+	}
 
 	vrep.getObjectPosition(ball_id, ball_coord);
 	vrep.getObjectPosition(goal_left_id, goal_left_coord);
 	vrep.getObjectPosition(goal_right_id, goal_right_coord);
-	//vrep.getObjectPosition(robot6_id, robot6_coord);
-	//vrep.getObjectPosition(robot7_id, robot7_coord);
-	//team_robots_coords.push_back(robot7_coord);
-	//vrep.getObjectPosition(robot8_id, robot8_coord);
-	//team_robots_coords.push_back(robot8_coord);
 
-	vrep.getObjectOrientation(team_robots_ids.at(0), self_orientation);
-	team_robots_orient.push_back(self_orientation);
-	vrep.getObjectOrientation(team_robots_ids.at(1), robot0_orientation);
-	team_robots_orient.push_back(robot0_orientation);
-	vrep.getObjectOrientation(team_robots_ids.at(2), robot1_orientation);
-	team_robots_orient.push_back(robot1_orientation);
-	vrep.getObjectOrientation(team_robots_ids.at(3), robot2_orientation);
-	team_robots_orient.push_back(robot2_orientation);
-	vrep.getObjectOrientation(team_robots_ids.at(0), robot3_orientation);
-	opp_robots_orient.push_back(robot3_orientation);
-	vrep.getObjectOrientation(team_robots_ids.at(1), robot4_orientation);
-	opp_robots_orient.push_back(robot4_orientation);
-	vrep.getObjectOrientation(team_robots_ids.at(2), robot5_orientation);
-	opp_robots_orient.push_back(robot5_orientation);
-	//vrep.getObjectOrientation(robot6_id, robot6_orientation);
-	//vrep.getObjectOrientation(robot7_id, robot7_orientation);
-	//vrep.getObjectOrientation(robot8_id, robot8_orientation);
-
-
-	std::cout << "----------------------LIST INFO-----------------------" << std::endl;
-	printInfo("Robot self",team_robots_ids.at(0), self_coord );
-	printInfo("Robot #0", team_robots_ids.at(1) , robot0_coord );
-	printInfo("Robot #1", team_robots_ids.at(2), robot1_coord );
-	printInfo("Robot #2", team_robots_ids.at(3), robot2_coord );
-	printInfo("Robot #3", opp_robots_ids.at(0), robot3_coord );
-	printInfo("Robot #4", opp_robots_ids.at(1), robot4_coord );
-	printInfo("Robot #5", opp_robots_ids.at(2), robot5_coord );
-	printInfo("Ball", ball_id, ball_coord );
-	printInfo("Goal left ", goal_left_id, goal_left_coord);
-	printInfo("Goal Right", goal_right_id, goal_right_coord);
-	printInfo("Robot #4 orientation", opp_robots_ids.at(1), robot4_orientation);
-	printInfo("Robot #5 Orientation", opp_robots_ids.at(2), robot5_orientation);
-	//printInfo("Robot #7 orientation", robot7_id, robot7_orientation);
-	//printInfo("Robot #8 orientation", robot8_id, robot8_orientation);
-
-
-	//initialize map with static elements
+	feedMap(map);
 	simxFloat aux[3];
-	for(float i = -FIELD_Y; i <= FIELD_Y; i+=SCALE) {
-		aux[0] = -FIELD_X;
-		aux[1] = i;
-		updateMap(map, aux, FIELD_LIMITS);
-		aux[0] = FIELD_X;
-		updateMap(map, aux, FIELD_LIMITS);
-	}
-	for(float i = -FIELD_X; i <= FIELD_X; i+=SCALE) {
-		aux[0] = i;
-		aux[1] = -FIELD_Y;
-		updateMap(map, aux, FIELD_LIMITS);
-		aux[1] = FIELD_Y;
-		updateMap(map, aux, FIELD_LIMITS);
-	}
-
 	aux[0] = -4.5;
 	for(float i = goal_left_coord[1] - (GOAL_SIZE)/2; i < goal_left_coord[1] + (GOAL_SIZE)/2; i += 0.25 ) {
 		aux[1] = i;
 		updateMap(map, aux, TEAM_GOAL);
 	}
-
 	aux[0] = goal_right_coord[0];
 	for(float i = goal_right_coord[1] - (GOAL_SIZE)/2; i < goal_right_coord[1] + (GOAL_SIZE)/2; i += 0.25 ) {
 		aux[1] = i;
 		updateMap(map, aux, OPP_GOAL);
 	}
 	//initialize map with robots and ball`s inicial position
-	updateMap(map, self_coord, TEAM_ROBOT);
-	updateMap(map, robot0_coord, TEAM_ROBOT);
-	updateMap(map, robot1_coord, TEAM_ROBOT);
-	updateMap(map, robot2_coord, TEAM_ROBOT);
-	updateMap(map, robot3_coord, OPP_ROBOT);
-	updateMap(map, robot4_coord, OPP_ROBOT);
-	updateMap(map, robot5_coord, OPP_ROBOT);
-	updateMap(map, robot6_coord, TEAM_ROBOT);
-
+	for(auto const pos : team_robots_coords) {
+		simxFloat coords[3] = {boost::get<0>(pos), boost::get<1>(pos), boost::get<2>(pos)};
+		updateMap(map, coords, TEAM_ROBOT);
+	}
+	for(auto const pos : opp_robots_coords) {
+		simxFloat coords[3] = {boost::get<0>(pos), boost::get<1>(pos), boost::get<2>(pos)};
+		updateMap(map, coords, OPP_ROBOT);
+	}
 	updateMap(map, ball_coord, BALL);
-
-	//printMapGroundTruth(map);
-
-	//updateOccupancyGrid(occupancy, self_coord, self_orientation);
-
 	updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
-
-	printOccupancyGrid(occupancy);
-
-	//printMap(map, occupancy);
-
-	// self_coord[0] = 1.0;
-	// self_coord[1] = 4.0;
-	// team_robots_coords.pop_back();
-	// vrep.getObjectPosition(team_robots_ids.at(0), self_coord);
-	// team_robots_coords.push_back(self_coord);
-
+	printGnuPlot(occupancy);
 	std::cout.precision(2);
+
+
 	while(true) {
-		sleep(1);
+		sleep(2);
 		team_robots_coords.clear();
 		team_robots_orient.clear();
 		for(auto const& id : team_robots_ids) {
 			vrep.getObjectPosition(id, aux_coord);
-			team_robots_coords.push_back(aux_coord);
+			team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
 			vrep.getObjectOrientation(id, aux_coord);
-			team_robots_orient.push_back(aux_coord);
+			team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
 		}
-		//updateMap(map, self_coord, TEAM_ROBOT);
-//		updateOccupancyGrid(occupancy, self_coord, self_orientation);
-//		updateOccupancyGrid(occupancy, robot5_coord, robot5_orientation);
+		for(auto const& id : opp_robots_ids) {
+			vrep.getObjectPosition(id, aux_coord);
+			opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+			vrep.getObjectOrientation(id, aux_coord);
+			opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+		}
 		updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
-
-		//printMapGroundTruth(map);
-		printOccupancyGrid(occupancy);
-		//printMap(map, occupancy);
+		printGnuPlot(occupancy);
 	}
+
 
 	vrep.disconnectServer();
 	return 0;
