@@ -15,6 +15,8 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/thales/TCC/v-rep-remote-api/source"
   "/home/thales/TCC/v-rep-remote-api/source/includes"
   "/opt/ros/kinetic/include"
+  "/home/thales/Documentos/fuzzylite-6.0/release/bin"
+  "/home/thales/Documentos/fuzzylite-6.0/fuzzylite"
   )
 
 # Targets to which this target links.

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(Robot2)
+add_compile_options(-std=c++11)
 
 #oi
 if(WIN32)
@@ -13,6 +14,8 @@ if(UNIX)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNON_MATLAB_PARSING -DMAX_EXT_API_CONNECTIONS=255 -D_linux -std=c99 -pthread -lssl -lcrypto -lboost_iostreams -lboost_system -lboost_filesystem")
     SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -lssl -lcrypto -lboost_iostreams -lboost_system -lboost_filesystem" )
 endif(UNIX)
+
+set(fuzzylite /home/thales/Documentos/fuzzylite-6.0)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_BINARY_DIR} -lssl -lcrypto -lboost_iostreams -lboost_system -lboost_filesystem")
@@ -30,6 +33,9 @@ find_package(octovis REQUIRED)
 
 include_directories(includes)
 include_directories(${OCTOMAP_INCLUDE_DIRS})
+include_directories(${fuzzylite}/release/bin ${fuzzylite}/fuzzylite)
+link_directories(${fuzzylite}/release/bin ${fuzzylite}/fuzzylite)
+
 link_libraries(${OCTOMAP_LIBRARIES})
 
 add_executable(robot2 ${SOURCE_FILES})
@@ -39,8 +45,9 @@ if(WIN32)
     target_link_libraries(robot2 remote_api libwinmm.lib ws2_32.lib libhid.lib libsetupapi.lib)
 endif(WIN32)
 if(UNIX)
-    target_link_libraries(robot2 remote_api -lssl -lcrypto -ldl -lboost_iostreams -lboost_system -lboost_filesystem)
+    target_link_libraries(robot2 remote_api -lssl -lcrypto -ldl -lboost_iostreams -lboost_system -lboost_filesystem fuzzylite)
 endif(UNIX)
+
 
 set_target_properties( remote_api
     PROPERTIES

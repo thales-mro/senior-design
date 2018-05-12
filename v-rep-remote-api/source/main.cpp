@@ -16,8 +16,10 @@
 #include <random>
 #include <boost/tuple/tuple.hpp>
 #include "/home/thales/gnuplot-iostream/gnuplot-iostream.h"
+#include "fl/Headers.h"
 
 using namespace std;
+using namespace fl;
 
 #define MAX_X  6.0
 #define MAX_Y  4.0
@@ -40,6 +42,7 @@ using namespace std;
 #define N_MAP_ELEMENTS 6
 
 Gnuplot gp;
+fl::Engine *engine = new fl::Engine;
 const int nstepsRange = 1000;
 const int nstepsFOV = 10000;
 double rangeDistr[10] = {};
