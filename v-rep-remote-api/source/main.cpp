@@ -456,6 +456,20 @@ int main(int argc, char** argv) {
 	vrep.getObjectPosition(goal_left_id, goal_left_coord);
 	vrep.getObjectPosition(goal_right_id, goal_right_coord);
 
+	simxInt yawRobot = vrep.getHandle("HeadPitch_link_respondable#0");
+	cout << "Yaw handle robot " << yawRobot << endl;
+	cout << "At the startup" << endl;
+	vrep.getObjectOrientation(yawRobot, aux_coord);
+	cout << "Orientation: " << aux_coord[0] << " " << aux_coord[1] << " " << aux_coord[2] << endl;
+	cout << "After the startup" << endl;
+
+	while(true) {
+		aux_coord[0] = -0.5;
+		vrep.setObjectOrientation(yawRobot, aux_coord);
+		vrep.getObjectOrientation(yawRobot, aux_coord);
+		cout << "Orientation: " << aux_coord[0] << " " << aux_coord[1] << " " << aux_coord[2] << endl;
+	}
+	/*
 	feedMap(map);
 	simxFloat aux[3];
 	aux[0] = -4.5;
@@ -482,6 +496,8 @@ int main(int argc, char** argv) {
 	printGnuPlot(occupancy);
 	//std::cout.precision(2);
 
+
+
 	while(true) {
 		sleep(1);
 		team_robots_coords.clear();
@@ -501,6 +517,7 @@ int main(int argc, char** argv) {
 		updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
 		printGnuPlot(occupancy);
 	}
+	*/
 
 	vrep.disconnectServer();
 	return 0;
