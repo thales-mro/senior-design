@@ -196,7 +196,7 @@ void Simulator::setObjectPosition(const simxInt objectHandle, const simxFloat co
 
 void Simulator::setObjectOrientation(const simxInt objectHandle, const simxFloat angles[3]) const {
     if (clientID != -1) {
-        if (simxSetObjectOrientation(clientID, objectHandle, -1, angles, simx_opmode_oneshot_wait) == simx_return_ok) {
+        if (simxSetObjectOrientation(clientID, objectHandle, objectHandle, angles, simx_opmode_oneshot_wait) == simx_return_ok) {
             return;
         }
 
