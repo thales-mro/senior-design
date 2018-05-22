@@ -983,6 +983,8 @@ stdlib.h
 -
 time.h
 -
+string
+-
 iostream
 -
 unistd.h

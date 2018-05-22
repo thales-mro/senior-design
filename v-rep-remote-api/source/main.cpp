@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <stdlib.h>
 #include <time.h>
+#include <string>
 #include <iostream>
 #include <unistd.h>
 #include <random>
@@ -121,30 +122,30 @@ void configBallInputVariables(Engine *engine, InputVariable *ballDistance,InputV
 	ballConfidence->setEnabled(true);
 	ballConfidence->setRange(0.000, 1.000);
 	ballConfidence->setLockValueInRange(false);
-	ballConfidence->addTerm(new Trapezoid("lowConfidence", 0, 0, 0.4501, 0.743));
+	ballConfidence->addTerm(new Trapezoid("lowConfidence", 0, 0, 0.4501, 0.7968));
 	engine->addInputVariable(ballConfidence);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void configOppPlayerInputVariables(Engine *engine, InputVariable *oppAngle, InputVariable *oppConfidence, int id) {
-	oppAngle->setName("oppRobotAngle" + id);
+	oppAngle->setName("oppRobotAngle" + to_string(id));
 	oppAngle->setDescription("Checks the angle of a opponent robot towards the robot");
 	oppAngle->setEnabled(true);
-	oppAngle->setRange(-3.14, 3.14);
+	oppAngle->setRange(-3.15, 3.15);
 	oppAngle->setLockValueInRange(false);
 	oppAngle->addTerm(new Triangle("littleToLeft", 0, 0.502, 1.06));
-	oppAngle->addTerm(new Trapezoid("moderateToLeft",0.4854, 0.8403, 1.297, 1.617));
-	oppAngle->addTerm(new Trapezoid("aLotToLeft",1.057, 1.767, 3.017, 3.297));
+	oppAngle->addTerm(new Trapezoid("moderateToLeft",0.4807, 0.8403, 3.017, 3.297));
+	//oppAngle->addTerm(new Trapezoid("aLotToLeft",1.057, 1.767, 3.017, 3.297));
 	oppAngle->addTerm(new Triangle("littleToRight", -1.06, -0.502, 0));
-	oppAngle->addTerm(new Trapezoid("moderateToRight", -1.617, -1.297, -0.8403, -0.4854));
-	oppAngle->addTerm(new Trapezoid("aLotToRight", -3.297, -3.017, -1.767, -1.057));
+	oppAngle->addTerm(new Trapezoid("moderateToRight", -3.297, -3.017, -0.8403, -0.4807));
+	//oppAngle->addTerm(new Trapezoid("aLotToRight", -3.297, -3.017, -1.767, -1.057));
 	engine->addInputVariable(oppAngle);
 
-	oppConfidence->setName("OppConfidence" + id);
+	oppConfidence->setName("oppConfidence" + to_string(id));
 	oppConfidence->setDescription("Checks the confidence in opponent's location");
 	oppConfidence->setEnabled(true);
 	oppConfidence->setRange(0.000, 1.000);
 	oppConfidence->setLockValueInRange(false);
-	oppConfidence->addTerm(new Trapezoid("lowConfidence", 0, 0, 0.4, 0.6));
+	oppConfidence->addTerm(new Trapezoid("lowConfidence", 0, 0, 0.4, 0.6958));
 	engine->addInputVariable(oppConfidence);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,12 +158,18 @@ void configPanAngleOutputVariable(Engine *engine, OutputVariable *panAngle) {
 	panAngle->setAggregation(new Maximum);
 	panAngle->setDefuzzifier(new Centroid(100));
 	panAngle->setDefaultValue(0);
-	panAngle->addTerm(new Trapezoid("panLittleToLeft", 0.018, 0.0786, 0.1372, 0.216));
-	panAngle->addTerm(new Trapezoid("panModerateToLeft", 0.103, 0.2452, 0.428, 0.61));
-	panAngle->addTerm(new Trapezoid("panALotToLeft", 0.335, 0.543, 0.667, 0.7752));
-	panAngle->addTerm(new Trapezoid("panLittleToRight", -0.216, -0.1372,-0.0786, -0.018));
-	panAngle->addTerm(new Trapezoid("panModerateToRight", -0.61, -0.428, -0.2452, -0.103));
-	panAngle->addTerm(new Trapezoid("panALotToRight", -0.7752, -0.667, -0.543, -0.335));
+	panAngle->addTerm(new Trapezoid("panLittleToLeft", -0.06373, -0.003132, 0.05551, 0.1343));
+	panAngle->addTerm(new Trapezoid("panModerateToLeft", 0.0151, 0.1573, 0.3401, 0.5271));
+	panAngle->addTerm(new Trapezoid("panALotToLeft", 0.227, 0.435, 0.6723, 0.683));
+	panAngle->addTerm(new Trapezoid("panToBallLittleToLeft", 0.2137, 0.3537, 0.5537, 0.6427));
+	panAngle->addTerm(new Trapezoid("panToBallModerateToLeft", 0.3362, 0.4842, 0.6842, 0.7992));
+	panAngle->addTerm(new Trapezoid("panToBallALotToLeft", 0.5855, 0.7355, 0.8605, 0.9975));
+	panAngle->addTerm(new Trapezoid("panLittleToRight", -0.1343, -0.05551, 0.003132, 0.06373));
+	panAngle->addTerm(new Trapezoid("panModerateToRight", -0.5271, -0.3401, -0.1573, -0.0151));
+	panAngle->addTerm(new Trapezoid("panALotToRight", -0.683, -0.6723, -0.435, -0.227));
+	panAngle->addTerm(new Trapezoid("panToBallLittleToRight", -0.6427, -0.5537,-0.3537, -0.2137));
+	panAngle->addTerm(new Trapezoid("panToBallModerateToRight", -0.7992, -0.6842, -0.4842, -0.3362));
+	panAngle->addTerm(new Trapezoid("panToBallALotToRight", -0.9975, -0.8605, -0.7355, -0.5855));
 	engine->addOutputVariable(panAngle);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,12 +181,24 @@ void configPanRules(Engine *engine, RuleBlock *mamdani) {
 	mamdani->setDisjunction(new Maximum);
 	mamdani->setImplication(new AlgebraicProduct);
 	mamdani->setActivation(new General);
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is littleToLeft and BallConfidence is lowConfidence then panAngle is panLittleToLeft", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is moderateToLeft and BallConfidence is lowConfidence then panAngle is panModerateToLeft", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is aLotToLeft and BallConfidence is lowConfidence then panAngle is panALotToLeft", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is littleToRight and BallConfidence is lowConfidence then panAngle is panLittleToRight", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is moderateToRight and BallConfidence is lowConfidence then panAngle is panModerateToRight", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is aLotToRight and BallConfidence is lowConfidence then panAngle is panALotToRight", engine));
+	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is littleToLeft and BallConfidence is lowConfidence then panAngle is panToBallLittleToLeft", engine));
+	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is moderateToLeft and BallConfidence is lowConfidence then panAngle is panToBallModerateToLeft", engine));
+	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is aLotToLeft and BallConfidence is lowConfidence then panAngle is panToBallALotToLeft", engine));
+	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is littleToRight and BallConfidence is lowConfidence then panAngle is panToBallLittleToRight", engine));
+	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is moderateToRight and BallConfidence is lowConfidence then panAngle is panToBallModerateToRight", engine));
+	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is aLotToRight and BallConfidence is lowConfidence then panAngle is panToBallALotToRight", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is littleToLeft then panAngle is panLittleToLeft", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is littleToRight then panAngle is panLittleToRight", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is moderateToLeft then panAngle is panModerateToLeft", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is moderateToRight then panAngle is panModerateToRight", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is littleToLeft then panAngle is panLittleToLeft", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is littleToRight then panAngle is panLittleToRight", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is moderateToLeft then panAngle is panModerateToLeft", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is moderateToRight then panAngle is panModerateToRight", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is littleToLeft then panAngle is panLittleToLeft", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is littleToRight then panAngle is panLittleToRight", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is moderateToLeft then panAngle is panModerateToLeft", engine));
+	mamdani->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is moderateToRight then panAngle is panModerateToRight", engine));
 	engine->addRuleBlock(mamdani);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -343,33 +362,51 @@ simxFloat calculateAngle(simxFloat diffX, simxFloat diffY, simxFloat dist) {
 	return -1*arcCos;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void processFuzzy(Engine *engine, InputVariable *ballDistance, InputVariable *ballAngle, InputVariable *ballConfidence, OutputVariable *panAngle, const boost::tuple<simxFloat, simxFloat, simxFloat>& coord,  const boost::tuple<simxFloat, simxFloat, simxFloat> orient, simxFloat* ball_coord) {
-	simxFloat x_coord = boost::get<0>(coord);
-	simxFloat y_coord = boost::get<1>(coord);
-	simxFloat z_angle = boost::get<2>(orient);
-	double diffX = ball_coord[0] - x_coord;
-	double diffY = ball_coord[1] - y_coord;
-	double distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
-	double angle = calculateAngle(diffX, diffY, distance);
-	cout << "ANGLE: " << angle << endl;
-	cout << "joint coords " << x_coord << " " << y_coord << " " << z_angle << endl;
-	cout << "ball coords " << ball_coord[0] << " " << ball_coord[1] << endl;
-	cout << "Angle to ball: " << angle  << " " << diffX << " " << diffY << " " << distance<< endl;
-	string status;
-	if(not engine->isReady(&status))
-		throw Exception("[engine error] engine is not ready:n" + status, FL_AT);
-	ballDistance->setValue(distance);
-	double ballAngleToFuzzy;
+double calculateAngleForFuzzy(double angle, simxFloat z_angle) {
 	z_angle = (z_angle < 0) ? z_angle + (2*M_PI): z_angle;
 	angle = (angle < 0) ? angle + (2*M_PI): angle;
 	double upperLim = z_angle + M_PI > (2*M_PI)? z_angle - M_PI : z_angle + M_PI;
 	if(upperLim < z_angle)
-		ballAngleToFuzzy = (angle < upperLim) ? angle + ((2*M_PI) -z_angle) : angle - z_angle;
+		return (angle < upperLim) ? angle + ((2*M_PI) -z_angle) : angle - z_angle;
 	else
-		ballAngleToFuzzy = (angle > upperLim) ? -(z_angle - (angle - (2*M_PI))) : angle - z_angle;
+		return (angle > upperLim) ? -(z_angle - (angle - (2*M_PI))) : angle - z_angle;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+double calculateAngleForOppRobotsFuzzy(const boost::tuple<simxFloat, simxFloat, simxFloat>& opp_coord, simxFloat x_coord, simxFloat y_coord, simxFloat z_angle) {
+	simxFloat x_opp = boost::get<0>(opp_coord);
+	simxFloat y_opp = boost::get<1>(opp_coord);
+	double diffX = x_opp - x_coord;
+	double diffY = y_opp - y_coord;
+	double distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
+	double angle = calculateAngle(diffX, diffY, distance);
+	return calculateAngleForFuzzy(angle, z_angle);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void processFuzzy(Engine *engine, InputVariable *ballDistance, InputVariable *ballAngle, InputVariable *ballConfidence, InputVariable* opp1Confidence, InputVariable* opp1Angle,InputVariable* opp2Confidence, InputVariable* opp2Angle,InputVariable* opp3Confidence, InputVariable* opp3Angle, OutputVariable *panAngle, const boost::tuple<simxFloat, simxFloat, simxFloat>& robot_coord,  const boost::tuple<simxFloat, simxFloat, simxFloat> robot_orient, simxFloat* ball_coord, simxFloat ball_confidence, const std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& opp_robots_coords, const std::vector<simxFloat> opp_robots_confidence) {
+	string status;
+	if(not engine->isReady(&status))
+		throw Exception("[engine error] engine is not ready:n" + status, FL_AT);
 
-	ballAngle->setValue(ballAngleToFuzzy);
-	ballConfidence->setValue(0.5); //wrong
+	simxFloat x_coord = boost::get<0>(robot_coord);
+	simxFloat y_coord = boost::get<1>(robot_coord);
+	simxFloat z_angle = boost::get<2>(robot_orient);
+
+	double diffX = ball_coord[0] - x_coord;
+	double diffY = ball_coord[1] - y_coord;
+	double distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
+	double angle = calculateAngle(diffX, diffY, distance);
+
+	ballDistance->setValue(distance);
+	ballAngle->setValue(calculateAngleForFuzzy(angle, z_angle));
+	ballConfidence->setValue(ball_confidence);
+
+	opp1Angle->setValue(calculateAngleForOppRobotsFuzzy(opp_robots_coords.at(0), x_coord, y_coord, z_angle));
+	opp2Angle->setValue(calculateAngleForOppRobotsFuzzy(opp_robots_coords.at(1), x_coord, y_coord, z_angle));
+	opp3Angle->setValue(calculateAngleForOppRobotsFuzzy(opp_robots_coords.at(2), x_coord, y_coord, z_angle));
+	opp1Confidence->setValue(opp_robots_confidence.at(0));
+	opp2Confidence->setValue(opp_robots_confidence.at(1));
+	opp3Confidence->setValue(opp_robots_confidence.at(2));
+
 	engine->process();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -525,7 +562,7 @@ void printGnuPlot(float occupancyGrid[][MAP_Y]) {
 
 int main(int argc, char** argv) {
 	simxInt ball_id, goal_left_id, goal_right_id;
-	simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3], aux_coord[3];
+	simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3], aux_coord[3], ball_confidence;
 	std::vector<std::string> team_robots_joints, team_robots_head;
 	std::vector<simxInt> team_robots_joints_ids, team_robots_head_ids;
 	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> team_robots_coords;
@@ -534,6 +571,7 @@ int main(int argc, char** argv) {
 	std::vector<simxInt> opp_robots_ids;
 	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>  opp_robots_coords;
 	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>  opp_robots_orient;
+	std::vector<simxFloat> opp_robots_confidence;
 
 	Engine *engine = new Engine;
 	InputVariable *ballAngle = new InputVariable;
@@ -612,25 +650,6 @@ int main(int argc, char** argv) {
 	vrep.getObjectPosition(goal_left_id, goal_left_coord);
 	vrep.getObjectPosition(goal_right_id, goal_right_coord);
 
-
-	/* FUZZY SPIKE
-	//simxInt yawRobot = vrep.getHandle("HeadYaw_link_respondable#2");
-	simxInt yawRobot = vrep.getHandle("HeadYaw#0");
-	cout << "Yaw handle robot " << yawRobot << endl;
-	cout << "At the startup" << endl;
-	vrep.getObjectOrientation(yawRobot, aux_coord);
-	cout << "Orientation: " << aux_coord[0] << " " << aux_coord[1] << " " << aux_coord[2] << endl;
-	cout << "After the startup" << endl;
-
-	vrep.setJointVelocity(yawRobot, 10);
-	while(true) {
-		aux_coord[2] = 0.5;
-		//vrep.setJointVelocity(yawRobot, 2);
-		//vrep.setObjectOrientation(yawRobot, aux_coord);
-		vrep.getObjectOrientation(vrep.getHandle("HeadYaw_link_respondable#0"), aux_coord);
-		cout << "Orientation: " << aux_coord[0] << " " << aux_coord[1] << " " << aux_coord[2] << endl;
-	}*/
-
 	feedMap(map);
 	simxFloat aux[3];
 	aux[0] = -4.5;
@@ -657,8 +676,6 @@ int main(int argc, char** argv) {
 	printGnuPlot(occupancy);
 	//std::cout.precision(2);
 
-
-
 	while(true) {
 		sleep(1);
 		team_robots_coords.clear();
@@ -679,10 +696,18 @@ int main(int argc, char** argv) {
 		}
 		updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
 		printGnuPlot(occupancy);
+
+		ball_confidence = occupancy[convertX(ball_coord[0])][convertY(ball_coord[1])];
+		opp_robots_confidence.clear();
+		for(int i = 0; i < opp_robots_coords.size(); i++) {
+			boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
+			opp_robots_confidence.push_back(occupancy[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
+		}
+
 		for(int i = 0; i < team_robots_coords.size(); i++) {
-			processFuzzy(engine, ballDistance, ballAngle, ballConfidence, panAngle, 		team_robots_coords.at(i), team_robots_orient.at(i), ball_coord);
+			processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(i), team_robots_orient.at(i), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
 			double speed = panAngle->getValue();
-			cout << "calculated speed: " << speed << endl;
+			cout << "calculated speed " << i << ": " << speed << endl;
 			vrep.setJointVelocity(team_robots_joints_ids.at(i), speed);
 		}
 
