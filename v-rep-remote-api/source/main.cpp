@@ -22,6 +22,8 @@
 using namespace std;
 using namespace fl;
 
+const bool IS_MAP_SHARED = false;
+
 const double MAX_X = 6.0;
 const double MAX_Y = 4.0;
 const double SCALE = 0.25;
@@ -559,8 +561,37 @@ void printGnuPlot(float occupancyGrid[][MAP_Y]) {
 	gp << std::endl;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
+void printGnuPlot2(Gnuplot &gp2Aux, float occupancyGrid[][MAP_Y]) {
+
+	gp2Aux << "set xrange [-6:6]\n";
+	gp2Aux << "set yrange [-6:6]\n";
+	gp2Aux << "set zrange [-1:1]\n";
+	gp2Aux << "set hidden3d nooffset\n";
+	gp2Aux << "splot ";
+	{
+		double step = SCALE;
+		double startX = -FIELD_X;
+		double startY = FIELD_Y;
+		double stepX = startX, stepY, stepZ;
+		std::vector<std::vector<boost::tuple<double,double,double> > > pts(MAP_X);
+		for(int u = 0; u < MAP_X; u++) {
+			pts[u].resize(MAP_Y);
+			stepY = startY;
+			for(int v = 0; v < MAP_Y; v++) {
+				stepZ = occupancyGrid[u][v];
+				pts[u][v] = boost::make_tuple(stepX, stepY, stepZ);
+				stepY -= step;
+			}
+			stepX += step;
+		}
+		gp2Aux << gp2Aux.binFile2d(pts, "record") << "with lines title 'vec of vec of boost::tuple'";
+	}
+	gp2Aux << std::endl;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char** argv) {
+
 	simxInt ball_id, goal_left_id, goal_right_id;
 	simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3], aux_coord[3], ball_confidence;
 	std::vector<std::string> team_robots_joints, team_robots_head;
@@ -572,6 +603,8 @@ int main(int argc, char** argv) {
 	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>  opp_robots_coords;
 	std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>  opp_robots_orient;
 	std::vector<simxFloat> opp_robots_confidence;
+
+	Gnuplot gpRobot1, gpRobot2, gpRobot3;
 
 	Engine *engine = new Engine;
 	InputVariable *ballAngle = new InputVariable;
@@ -602,10 +635,7 @@ int main(int argc, char** argv) {
 	vrep.connectServer();
 
 	int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
-	float occupancy[MAP_X][MAP_Y];
-
 	resetMap(map);
-	resetOccupancyGrid(occupancy);
 
 	team_robots_joints.push_back("HeadYaw");
 	team_robots_joints.push_back("HeadYaw#0");
@@ -639,6 +669,7 @@ int main(int argc, char** argv) {
 		vrep.getObjectOrientation(robotId, aux_coord);
 		team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
 	}
+
 	for(const auto robotId : opp_robots_ids) {
 		vrep.getObjectPosition(robotId, aux_coord);
 		opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
@@ -672,8 +703,17 @@ int main(int argc, char** argv) {
 		updateMap(map, coords, OPP_ROBOT);
 	}
 	updateMap(map, ball_coord, BALL);
-	updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
-	printGnuPlot(occupancy);
+
+
+	float occupancy[MAP_X][MAP_Y], occupancy2[MAP_X][MAP_Y], occupancy3[MAP_X][MAP_Y];
+	resetOccupancyGrid(occupancy);
+	if(!IS_MAP_SHARED) {
+		resetOccupancyGrid(occupancy2);
+		resetOccupancyGrid(occupancy3);
+	}
+
+
+	//updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
 	//std::cout.precision(2);
 
 	while(true) {
@@ -694,21 +734,81 @@ int main(int argc, char** argv) {
 			vrep.getObjectOrientation(id, aux_coord);
 			opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
 		}
-		updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
-		printGnuPlot(occupancy);
-
-		ball_confidence = occupancy[convertX(ball_coord[0])][convertY(ball_coord[1])];
-		opp_robots_confidence.clear();
-		for(int i = 0; i < opp_robots_coords.size(); i++) {
-			boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
-			opp_robots_confidence.push_back(occupancy[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
+		if(IS_MAP_SHARED) {
+			updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
+			printGnuPlot(occupancy);
 		}
+		else {
+			std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> aux;
+			std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> aux2;
+			aux.clear();
+			aux2.clear();
+			aux.push_back(team_robots_coords.at(0));
+			aux2.push_back(team_robots_orient.at(0));
+			updateOccupancyGrid2(occupancy, aux, aux2);
+			aux.clear();
+			aux2.clear();
+			aux.push_back(team_robots_coords.at(1));
+			aux2.push_back(team_robots_orient.at(1));
+			updateOccupancyGrid2(occupancy2, aux, aux2);
+			aux.clear();
+			aux2.clear();
+			aux.push_back(team_robots_coords.at(2));
+			aux2.push_back(team_robots_orient.at(2));
+			updateOccupancyGrid2(occupancy3, aux, aux2);
+			printGnuPlot2(gpRobot1, occupancy);
+			printGnuPlot2(gpRobot2, occupancy2);
+			printGnuPlot2(gpRobot3, occupancy3);
+		}
+		if(IS_MAP_SHARED) {
+			ball_confidence = occupancy[convertX(ball_coord[0])][convertY(ball_coord[1])];
+			opp_robots_confidence.clear();
+			for(int i = 0; i < opp_robots_coords.size(); i++) {
+				boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
+				opp_robots_confidence.push_back(occupancy[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
+			}
 
-		for(int i = 0; i < team_robots_coords.size(); i++) {
-			processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(i), team_robots_orient.at(i), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+			for(int i = 0; i < team_robots_coords.size(); i++) {
+				processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(i), team_robots_orient.at(i), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+				double speed = panAngle->getValue();
+				cout << "calculated speed " << i << ": " << speed << endl;
+				vrep.setJointVelocity(team_robots_joints_ids.at(i), speed);
+			}
+		}
+		else {
+			ball_confidence = occupancy[convertX(ball_coord[0])][convertY(ball_coord[1])];
+			opp_robots_confidence.clear();
+			for(int i = 0; i < opp_robots_coords.size(); i++) {
+				boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
+				opp_robots_confidence.push_back(occupancy[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
+			}
+			processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(0), team_robots_orient.at(0), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
 			double speed = panAngle->getValue();
-			cout << "calculated speed " << i << ": " << speed << endl;
-			vrep.setJointVelocity(team_robots_joints_ids.at(i), speed);
+			cout << "calculated speed "  << ": " << speed << endl;
+			vrep.setJointVelocity(team_robots_joints_ids.at(0), speed);
+
+			ball_confidence = occupancy2[convertX(ball_coord[0])][convertY(ball_coord[1])];
+			opp_robots_confidence.clear();
+			for(int i = 0; i < opp_robots_coords.size(); i++) {
+				boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
+				opp_robots_confidence.push_back(occupancy2[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
+			}
+			processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(1), team_robots_orient.at(1), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+			speed = panAngle->getValue();
+			cout << "calculated speed "  << ": " << speed << endl;
+			vrep.setJointVelocity(team_robots_joints_ids.at(1), speed);
+
+			ball_confidence = occupancy3[convertX(ball_coord[0])][convertY(ball_coord[1])];
+			opp_robots_confidence.clear();
+			for(int i = 0; i < opp_robots_coords.size(); i++) {
+				boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
+				opp_robots_confidence.push_back(occupancy3[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
+			}
+			processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(2), team_robots_orient.at(2), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+			speed = panAngle->getValue();
+			cout << "calculated speed "  << ": " << speed << endl;
+			vrep.setJointVelocity(team_robots_joints_ids.at(2), speed);
+
 		}
 
 	}
