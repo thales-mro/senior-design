@@ -1,0 +1,7 @@
+/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/install.dir
+/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/list_install_components.dir
+/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/rebuild_cache.dir
+/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/movehead.dir
+/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/remote_api.dir
+/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/install/local.dir
+/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/edit_cache.dir

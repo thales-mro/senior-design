@@ -1,0 +1,2 @@
+/usr/bin/ar qc libremote_api.a  CMakeFiles/remote_api.dir/source/src/v_rep/extApi.c.o CMakeFiles/remote_api.dir/source/src/v_rep/extApiPlatform.c.o
+/usr/bin/ranlib libremote_api.a

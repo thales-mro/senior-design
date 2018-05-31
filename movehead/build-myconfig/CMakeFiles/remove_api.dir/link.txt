@@ -1,0 +1,2 @@
+/usr/bin/ar qc libremove_api.a  CMakeFiles/remove_api.dir/source/src/v_rep/extApi.c.o CMakeFiles/remove_api.dir/source/src/v_rep/extApiPlatform.c.o
+/usr/bin/ranlib libremove_api.a
