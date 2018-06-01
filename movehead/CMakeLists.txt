@@ -50,7 +50,7 @@ link_directories(${fuzzylite}/fuzzylite/release/bin)
 # with the source file : movehead.cpp
 qi_create_bin(movehead movehead.cpp source/src/Simulator.cpp source/src/teste.cpp)
 
-target_link_libraries(movehead remote_api -lssl -lcrypto -ldl -lboost_iostreams -lboost_system -lboost_filesystem)
+target_link_libraries(movehead remote_api -lssl -lcrypto -ldl -lboost_iostreams)# -lboost_system )#-lboost_filesystem)
 
 
 # Tell CMake that movehead depends on ALCOMMON and ALPROXIES
