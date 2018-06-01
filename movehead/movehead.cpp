@@ -18,6 +18,7 @@
 #include <defines.hpp>
 #include "Simulator.hpp"
 #include "teste.hpp"
+#include "Communication.hpp"
 #include "Exceptions/VRepException.hpp"
 #include <iomanip>
 #include <unistd.h>
@@ -28,6 +29,8 @@
 #include <cmath>
 #include <string>
 #include "fl/Headers.h"
+#include <thread>
+#include <future>
 
 using namespace std;
 using namespace fl;
@@ -612,6 +615,8 @@ void printGnuPlot2(Gnuplot &gp2Aux, float occupancyGrid[][MAP_Y]) {
 
 int main(int argc, char* argv[]) {
 
+
+
   //fl::Engine *engine = new fl::Engine;
 	// InputVariable *ballAngle = new InputVariable;
 	// InputVariable *ballDistance = new InputVariable;
@@ -645,18 +650,18 @@ int main(int argc, char* argv[]) {
     */
     AL::ALMotionProxy motion("127.0.0.1:33375", 9559);
 
-    std::vector<float> listangles;
+    std::vector<float> listAngles;
     std::vector<float> parallel;
 
     AL::ALValue x = 1.0f;
     AL::ALValue y = 0.0f;
-    AL::ALValue theta = 0.5f;
+    AL::ALValue theta = 0.0f;
 
     //motion.moveToward(0.0f, 0.0f, 0.0f);
-    listangles = motion.getAngles("Body", false);
+    listAngles = motion.getAngles("Body", false);
 
-    for(int i = 0; i < listangles.size(); i++) {
-      cout << "Angle " << i << ": " << listangles.at(i) << endl;
+    for(int i = 0; i < listAngles.size(); i++) {
+      cout << "Angle " << i << ": " << listAngles.at(i) << endl;
     }
 
     motion.moveInit();
@@ -718,11 +723,23 @@ int main(int argc, char* argv[]) {
       simxGetObjectHandle(clientID, name.c_str(), &handle, simx_opmode_oneshot_wait);
       cout << "Sera?: " << handle << endl;
     }*/
+    cout << "Start connection with V-REP server" << endl;
     auto sim = new Simulator("127.0.0.1", PORT_NUMBER);
     Simulator &vrep = *sim;
     vrep.connectServer();
+    cout << "Server connected!" << endl;
 
-    simxInt naoJointsIds[24];
+    Communication *comm = new Communication(vrep.getClientID());
+    comm->testConnectionVREP();
+    comm->testConnectionChoregraphe();
+    cout << "Connections tested" << endl;
+    //std::thread t1(&Communication::updateJointsPositions, comm);
+    auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
+    //comm->startThread();
+    while(true) {
+      cout << "Hello from the other side" << endl;
+    }
+    /*simxInt naoJointsIds[24];
     naoJointsIds[0] = vrep.getHandle("HeadYaw#0");
     naoJointsIds[1] = vrep.getHandle("HeadPitch#0");
     naoJointsIds[2] = vrep.getHandle("LHipYawPitch3#0");
@@ -747,33 +764,34 @@ int main(int argc, char* argv[]) {
     naoJointsIds[21] = vrep.getHandle("RElbowYaw3#0");
     naoJointsIds[22] = vrep.getHandle("RElbowRoll3#0");
     naoJointsIds[23] = vrep.getHandle("RWristYaw3#0");
-    /*while(true) {
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[0], 0, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[1], -0.170243, simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[14], 1.80367, simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[15], 0.268785, simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[16], -1.51394, simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[17], -0.515019, simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[18], 2.8026e-45, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[2], -7.58254e-10, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[3], 0.127071, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[4], -0.591837, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[5], 1.20245, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[6], -0.610609, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[7], -0.127071, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[8], -7.58254e-10, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[9], 0.115593, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[10], -0.317079, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[11], 0.840284, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[12], -0.523205, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[13], -0.115593, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[19], 1.86579, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[20], -0.260248, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[21], 1.48068, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[22], 0.520563, simx_opmode_streaming);
-      // simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[23], 2.8026e-45, simx_opmode_streaming);
+    while(true) {
+      listAngles = motion.getAngles("Body", false);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[0], listAngles.at(0), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[1], listAngles.at(1), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[2], listAngles.at(8), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[3], listAngles.at(9), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[4], listAngles.at(10), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[5], listAngles.at(11), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[6], listAngles.at(12), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[7], listAngles.at(13), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[8], listAngles.at(14), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[9], listAngles.at(15), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[10], listAngles.at(16), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[11], listAngles.at(17), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[12], listAngles.at(18), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[13], listAngles.at(19), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[14], listAngles.at(2), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[15], listAngles.at(3), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[16], listAngles.at(4), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[17], listAngles.at(5), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[18], listAngles.at(6), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[19], listAngles.at(20), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[20], listAngles.at(21), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[21], listAngles.at(22), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[22], listAngles.at(23), simx_opmode_streaming);
+      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[23], listAngles.at(24), simx_opmode_streaming);
     }*/
-
+    /*
     int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
     resetMap(map);
 
@@ -952,7 +970,7 @@ int main(int argc, char* argv[]) {
       }
 
     }
-
+    */
 
     vrep.disconnectServer();
   }

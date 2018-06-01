@@ -201,6 +201,33 @@ movehead.cpp.s:
 	$(MAKE) -f CMakeFiles/movehead.dir/build.make CMakeFiles/movehead.dir/movehead.cpp.s
 .PHONY : movehead.cpp.s
 
+source/src/Communication.o: source/src/Communication.cpp.o
+
+.PHONY : source/src/Communication.o
+
+# target to build an object file
+source/src/Communication.cpp.o:
+	$(MAKE) -f CMakeFiles/movehead.dir/build.make CMakeFiles/movehead.dir/source/src/Communication.cpp.o
+.PHONY : source/src/Communication.cpp.o
+
+source/src/Communication.i: source/src/Communication.cpp.i
+
+.PHONY : source/src/Communication.i
+
+# target to preprocess a source file
+source/src/Communication.cpp.i:
+	$(MAKE) -f CMakeFiles/movehead.dir/build.make CMakeFiles/movehead.dir/source/src/Communication.cpp.i
+.PHONY : source/src/Communication.cpp.i
+
+source/src/Communication.s: source/src/Communication.cpp.s
+
+.PHONY : source/src/Communication.s
+
+# target to generate assembly for a file
+source/src/Communication.cpp.s:
+	$(MAKE) -f CMakeFiles/movehead.dir/build.make CMakeFiles/movehead.dir/source/src/Communication.cpp.s
+.PHONY : source/src/Communication.cpp.s
+
 source/src/Simulator.o: source/src/Simulator.cpp.o
 
 .PHONY : source/src/Simulator.o
@@ -325,6 +352,9 @@ help:
 	@echo "... movehead.o"
 	@echo "... movehead.i"
 	@echo "... movehead.s"
+	@echo "... source/src/Communication.o"
+	@echo "... source/src/Communication.i"
+	@echo "... source/src/Communication.s"
 	@echo "... source/src/Simulator.o"
 	@echo "... source/src/Simulator.i"
 	@echo "... source/src/Simulator.s"

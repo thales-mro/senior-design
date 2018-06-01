@@ -6,6 +6,22 @@
 
 #IncludeRegexTransform: 
 
+../source/includes/Communication.hpp
+iostream
+-
+defines.hpp
+-
+Simulator.hpp
+../source/includes/Simulator.hpp
+Exceptions/VRepException.hpp
+../source/includes/Exceptions/VRepException.hpp
+alerror/alerror.h
+-
+alproxies/almotionproxy.h
+-
+thread
+-
+
 ../source/includes/Exceptions/VRepException.hpp
 exception
 -
@@ -977,6 +993,8 @@ Simulator.hpp
 /home/thales/TCC/naoqiworktree/movehead/Simulator.hpp
 teste.hpp
 /home/thales/TCC/naoqiworktree/movehead/teste.hpp
+Communication.hpp
+/home/thales/TCC/naoqiworktree/movehead/Communication.hpp
 Exceptions/VRepException.hpp
 /home/thales/TCC/naoqiworktree/movehead/Exceptions/VRepException.hpp
 iomanip
@@ -997,6 +1015,14 @@ string
 -
 fl/Headers.h
 /home/thales/TCC/naoqiworktree/movehead/fl/Headers.h
+thread
+-
+future
+-
+
+/home/thales/TCC/naoqiworktree/movehead/source/src/Communication.cpp
+Communication.hpp
+-
 
 /home/thales/TCC/naoqiworktree/movehead/source/src/Simulator.cpp
 Simulator.hpp

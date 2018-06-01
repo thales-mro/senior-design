@@ -1,0 +1,35 @@
+    //motion.moveToward(0.0f, 0.0f, 0.0f);
+
+    /** Make sure the head is stiff to be able to move it.
+    * To do so, make the stiffness go to the maximum in one second.
+    */
+
+    /** Target stiffness. */
+    //AL::ALValue stiffness = 1.0f;
+
+    /** Time (in seconds) to reach the target. */
+    //AL::ALValue time = 1.0f;
+
+    /** Call the stiffness interpolation method. */
+    //motion.stiffnessInterpolation(jointName, stiffness, time);
+
+    /** Set the target angle list, in radians. */
+    //AL::ALValue targetAngles = AL::ALValue::array(-1.5f, 1.5f, 0.0f);
+
+    /** Set the corresponding time lists, in seconds. */
+    //AL::ALValue targetTimes = AL::ALValue::array(3.0f, 6.0f, 9.0f);
+
+    /** Specify that the desired angles are absolute. */
+    //bool isAbsolute = true;
+
+    /** Call the angle interpolation method. The joint will reach the
+    * desired angles at the desired times.
+    */
+    //motion.angleInterpolation(jointName, targetAngles, targetTimes, isAbsolute);
+
+    /** Remove the stiffness on the head. */
+    //stiffness = 0.0f;
+    //time = 1.0f;
+    //motion.stiffnessInterpolation(jointName, stiffness, time);
+
+

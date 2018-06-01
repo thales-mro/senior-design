@@ -27,7 +27,8 @@ set(SOURCE_FILES
 	main.cpp	
 	src/Simulator.cpp
 	src/teste.cpp
-        )
+	src/Communication.cpp
+	)
 
 find_package(Threads REQUIRED)
 find_package(octomap REQUIRED)
@@ -48,7 +49,7 @@ link_directories(${fuzzylite}/fuzzylite/release/bin)
 
 # Create an executable named movehead,
 # with the source file : movehead.cpp
-qi_create_bin(movehead movehead.cpp source/src/Simulator.cpp source/src/teste.cpp)
+qi_create_bin(movehead movehead.cpp source/src/Simulator.cpp source/src/teste.cpp source/src/Communication.cpp)
 
 target_link_libraries(movehead remote_api -lssl -lcrypto -ldl -lboost_iostreams)# -lboost_system )#-lboost_filesystem)
 

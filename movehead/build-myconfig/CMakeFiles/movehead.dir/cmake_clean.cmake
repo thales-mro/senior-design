@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/movehead.dir/movehead.cpp.o"
   "CMakeFiles/movehead.dir/source/src/Simulator.cpp.o"
   "CMakeFiles/movehead.dir/source/src/teste.cpp.o"
+  "CMakeFiles/movehead.dir/source/src/Communication.cpp.o"
   "sdk/bin/movehead.pdb"
   "sdk/bin/movehead"
   "sdk/bin/movehead.pdb"

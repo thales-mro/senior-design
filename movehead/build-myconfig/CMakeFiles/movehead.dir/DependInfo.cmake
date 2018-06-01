@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/thales/TCC/naoqiworktree/movehead/movehead.cpp" "/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/movehead.dir/movehead.cpp.o"
+  "/home/thales/TCC/naoqiworktree/movehead/source/src/Communication.cpp" "/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/movehead.dir/source/src/Communication.cpp.o"
   "/home/thales/TCC/naoqiworktree/movehead/source/src/Simulator.cpp" "/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/movehead.dir/source/src/Simulator.cpp.o"
   "/home/thales/TCC/naoqiworktree/movehead/source/src/teste.cpp" "/home/thales/TCC/naoqiworktree/movehead/build-myconfig/CMakeFiles/movehead.dir/source/src/teste.cpp.o"
   )
