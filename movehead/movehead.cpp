@@ -734,12 +734,12 @@ int main(int argc, char* argv[]) {
     comm->testConnectionChoregraphe();
     cout << "Connections tested" << endl;
     //std::thread t1(&Communication::updateJointsPositions, comm);
-    auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
+    //auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
     //comm->startThread();
-    while(true) {
-      cout << "Hello from the other side" << endl;
-    }
-    /*simxInt naoJointsIds[24];
+    // while(true) {
+    //   cout << "Hello from the other side" << endl;
+    // }
+    simxInt naoJointsIds[24];
     naoJointsIds[0] = vrep.getHandle("HeadYaw#0");
     naoJointsIds[1] = vrep.getHandle("HeadPitch#0");
     naoJointsIds[2] = vrep.getHandle("LHipYawPitch3#0");
@@ -764,7 +764,7 @@ int main(int argc, char* argv[]) {
     naoJointsIds[21] = vrep.getHandle("RElbowYaw3#0");
     naoJointsIds[22] = vrep.getHandle("RElbowRoll3#0");
     naoJointsIds[23] = vrep.getHandle("RWristYaw3#0");
-    while(true) {
+    /*while(true) {
       listAngles = motion.getAngles("Body", false);
       simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[0], listAngles.at(0), simx_opmode_streaming);
       simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[1], listAngles.at(1), simx_opmode_streaming);
@@ -791,7 +791,7 @@ int main(int argc, char* argv[]) {
       simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[22], listAngles.at(23), simx_opmode_streaming);
       simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[23], listAngles.at(24), simx_opmode_streaming);
     }*/
-    /*
+
     int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
     resetMap(map);
 
@@ -807,10 +807,12 @@ int main(int argc, char* argv[]) {
     opp_robots.push_back("NAO#4");
     opp_robots.push_back("NAO#5");
 
+
     for(const auto jointName : team_robots_joints) {
       team_robots_joints_ids.push_back(vrep.getHandle(jointName));
       std::cout << jointName << std::endl;
     }
+
     for(const auto headName : team_robots_head) {
       team_robots_head_ids.push_back(vrep.getHandle(headName));
     }
@@ -870,28 +872,98 @@ int main(int argc, char* argv[]) {
       resetOccupancyGrid(occupancy3);
     }
 
+    auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
 
     //updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
     //std::cout.precision(2);
+    bool valid;
 
     while(true) {
       sleep(1);
       team_robots_coords.clear();
       team_robots_orient.clear();
 
-      vrep.getObjectPosition(ball_id, ball_coord);
+      //vrep.getObjectPosition(ball_id, ball_coord);
+      /*valid = false;
+      while(!valid) {
+        auto result = simxGetObjectPosition(vrep.getClientID(), ball_id, -1, ball_coord, simx_opmode_oneshot_wait);
+        if(result == simx_return_ok) {
+          valid = true;
+        }
+      }*/
+      ball_coord[0] = comm->getBallX();
+      ball_coord[1] = comm->getBallY();
+
+      aux_coord[0] = comm->getRobot0X();
+      aux_coord[1] = comm->getRobot0Y();
+      team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[0] = comm->getRobot1X();
+      aux_coord[1] = comm->getRobot1Y();
+      team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[0] = comm->getRobot2X();
+      aux_coord[1] = comm->getRobot2Y();
+      team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[2] = comm->getRobot0Z();
+      team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[2] = comm->getRobot1Z();
+      team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[2] = comm->getRobot2Z();
+      team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+
+      aux_coord[0] = comm->getOpp0X();
+      aux_coord[1] = comm->getOpp0Y();
+      opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[0] = comm->getOpp1X();
+      aux_coord[1] = comm->getOpp1Y();
+      opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[0] = comm->getOpp2X();
+      aux_coord[1] = comm->getOpp2Y();
+      opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[2] = comm->getOpp0Z();
+      opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[2] = comm->getOpp1Z();
+      opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[2] = comm->getOpp2Z();
+      opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+
+      /*
       for(auto const& id : team_robots_head_ids) {
-        vrep.getObjectPosition(id, aux_coord);
+        valid = false;
+        while(!valid) {
+          auto result = simxGetObjectPosition(vrep.getClientID(), id, -1, aux_coord, simx_opmode_oneshot_wait);
+          if(result == simx_return_ok)
+            valid = true;
+        }
+        //vrep.getObjectPosition(id, aux_coord);
         team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-        vrep.getObjectOrientation(id, aux_coord);
+        valid = false;
+        while(!valid) {
+          auto result = simxGetObjectOrientation(vrep.getClientID(), id, -1, aux_coord, simx_opmode_oneshot_wait);
+          if(result == simx_return_ok)
+            valid = true;
+        }
+        //vrep.getObjectOrientation(id, aux_coord);
         team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
       }
       for(auto const& id : opp_robots_ids) {
-        vrep.getObjectPosition(id, aux_coord);
+        valid = false;
+        while(!valid) {
+          auto result = simxGetObjectPosition(vrep.getClientID(), id, -1, aux_coord, simx_opmode_oneshot_wait);
+          if(result == simx_return_ok)
+            valid = true;
+        }
+        //vrep.getObjectPosition(id, aux_coord);
         opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-        vrep.getObjectOrientation(id, aux_coord);
+        valid = false;
+        while(!valid) {
+          auto result = simxGetObjectOrientation(vrep.getClientID(), id, -1, aux_coord, simx_opmode_oneshot_wait);
+          if(result == simx_return_ok)
+            valid = true;
+        }
+        //vrep.getObjectOrientation(id, aux_coord);
         opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
       }
+      */
       if(IS_MAP_SHARED) {
         updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
         printGnuPlot(occupancy);
@@ -930,7 +1002,13 @@ int main(int argc, char* argv[]) {
           processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(i), team_robots_orient.at(i), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
           double speed = panAngle->getValue();
           cout << "calculated speed " << i << ": " << speed << endl;
-          vrep.setJointVelocity(team_robots_joints_ids.at(i), speed);
+          valid = false;
+          while(!valid) {
+            auto result = simxSetJointTargetVelocity(vrep.getClientID(), team_robots_joints_ids.at(i), speed, simx_opmode_oneshot_wait);
+            if(result == simx_return_ok)
+              valid = true;
+          }
+          //vrep.setJointVelocity(team_robots_joints_ids.at(i), speed);
         }
       }
       else {
@@ -943,7 +1021,13 @@ int main(int argc, char* argv[]) {
         processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(0), team_robots_orient.at(0), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         double speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
-        vrep.setJointVelocity(team_robots_joints_ids.at(0), speed);
+        valid = false;
+        while(!valid) {
+          auto result = simxSetJointTargetVelocity(vrep.getClientID(), team_robots_joints_ids.at(0), speed, simx_opmode_oneshot_wait);
+          if(result == simx_return_ok)
+            valid = true;
+        }
+        //vrep.setJointVelocity(team_robots_joints_ids.at(0), speed);
 
         ball_confidence = occupancy2[convertX(ball_coord[0])][convertY(ball_coord[1])];
         opp_robots_confidence.clear();
@@ -954,7 +1038,13 @@ int main(int argc, char* argv[]) {
         processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(1), team_robots_orient.at(1), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
-        vrep.setJointVelocity(team_robots_joints_ids.at(1), speed);
+        valid = false;
+        while(!valid) {
+          auto result = simxSetJointTargetVelocity(vrep.getClientID(), team_robots_joints_ids.at(1), speed, simx_opmode_oneshot_wait);
+          if(result == simx_return_ok)
+            valid = true;
+        }
+        //vrep.setJointVelocity(team_robots_joints_ids.at(1), speed);
 
         ball_confidence = occupancy3[convertX(ball_coord[0])][convertY(ball_coord[1])];
         opp_robots_confidence.clear();
@@ -965,13 +1055,19 @@ int main(int argc, char* argv[]) {
         processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(2), team_robots_orient.at(2), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
-        vrep.setJointVelocity(team_robots_joints_ids.at(2), speed);
+        valid = false;
+        while(!valid) {
+          auto result = simxSetJointTargetVelocity(vrep.getClientID(), team_robots_joints_ids.at(2), speed, simx_opmode_oneshot_wait);
+          if(result == simx_return_ok)
+            valid = true;
+        }
+        //vrep.setJointVelocity(team_robots_joints_ids.at(2), speed);
 
       }
 
     }
-    */
 
+    cout << "About to End" << endl;
     vrep.disconnectServer();
   }
   catch (const AL::ALError& e) {
