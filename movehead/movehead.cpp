@@ -615,67 +615,23 @@ void printGnuPlot2(Gnuplot &gp2Aux, float occupancyGrid[][MAP_Y]) {
 
 int main(int argc, char* argv[]) {
 
-
-
-  //fl::Engine *engine = new fl::Engine;
-	// InputVariable *ballAngle = new InputVariable;
-	// InputVariable *ballDistance = new InputVariable;
-	// InputVariable *ballConfidence = new InputVariable;
-
-  /*simxInt clientID = simxStart("127.0.0.1", PORT_NUMBER, TRUE, TRUE, 2000, 5);
-  if(clientID != -1) {
-		cout << "Deu certo, porra: " << clientID << endl;
-		simxInt handle = -1;
-		std::string name = "HeadYaw";
-		simxGetObjectHandle(clientID, name.c_str(), &handle, simx_opmode_oneshot_wait);
-		cout << "Sera?: " << handle << endl;
-	}*/
-
-  if(argc != 2)
-  {
-    std::cerr << "Wrong number of arguments!" << std::endl;
-    std::cerr << "Usage: movehead NAO_IP" << std::endl;
-    exit(2);
-  }
-
-  /** The name of the joint to be moved. */
-  //const AL::ALValue jointName = "HeadYaw";
-
-
   try {
     /** Create a ALMotionProxy to call the methods to move NAO's head.
     * Arguments for the constructor are:
     * - IP adress of the robot
     * - port on which NAOqi is listening, by default 9559
     */
-    AL::ALMotionProxy motion("127.0.0.1:33375", 9559);
+    AL::ALMotionProxy motion("127.0.0.1:36355", 9559);
 
     std::vector<float> listAngles;
     std::vector<float> parallel;
 
     AL::ALValue x = 1.0f;
     AL::ALValue y = 0.0f;
-    AL::ALValue theta = 0.0f;
-
-    //motion.moveToward(0.0f, 0.0f, 0.0f);
-    listAngles = motion.getAngles("Body", false);
-
-    for(int i = 0; i < listAngles.size(); i++) {
-      cout << "Angle " << i << ": " << listAngles.at(i) << endl;
-    }
+    AL::ALValue theta = 0.5f;
 
     motion.moveInit();
-    motion.moveToward(x, y, theta);
-
-    //sleep(10);
-    /*while(true) {
-      parallel = motion.getAngles("Body", false);
-      for(int i = 0; i < listangles.size(); i++) {
-        //if(parallel.at(i) != listangles.at(i))
-          //cout << "Angle " << i << ": " << parallel.at(i) << endl;
-      }
-      listangles = parallel;
-    }*/
+    //motion.moveToward(x, y, theta);
 
     simxInt ball_id, goal_left_id, goal_right_id;
     simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3], aux_coord[3], ball_confidence;
@@ -683,6 +639,7 @@ int main(int argc, char* argv[]) {
     std::vector<simxInt> team_robots_joints_ids, team_robots_head_ids;
     std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> team_robots_coords;
     std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> team_robots_orient;
+    std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> team_robots_head_orient;
     std::vector<std::string> opp_robots;
     std::vector<simxInt> opp_robots_ids;
     std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>  opp_robots_coords;
@@ -713,16 +670,7 @@ int main(int argc, char* argv[]) {
 
     generateNormalDistributionRange();
     generateNormalDistributionFOV();
-    // First, we must connect to the v-rep simulator server
-    // For local connection, the IP is "127.0.0.1"
-    /*simxInt clientID = simxStart("127.0.0.1", PORT_NUMBER, TRUE, TRUE, 2000, 5);
-    if(clientID != -1) {
-      cout << "Deu certo, porra: " << clientID << endl;
-      simxInt handle = -1;
-      std::string name = "HeadYaw";
-      simxGetObjectHandle(clientID, name.c_str(), &handle, simx_opmode_oneshot_wait);
-      cout << "Sera?: " << handle << endl;
-    }*/
+
     cout << "Start connection with V-REP server" << endl;
     auto sim = new Simulator("127.0.0.1", PORT_NUMBER);
     Simulator &vrep = *sim;
@@ -733,65 +681,8 @@ int main(int argc, char* argv[]) {
     comm->testConnectionVREP();
     comm->testConnectionChoregraphe();
     cout << "Connections tested" << endl;
-    //std::thread t1(&Communication::updateJointsPositions, comm);
-    //auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
-    //comm->startThread();
-    // while(true) {
-    //   cout << "Hello from the other side" << endl;
-    // }
-    simxInt naoJointsIds[24];
-    naoJointsIds[0] = vrep.getHandle("HeadYaw#0");
-    naoJointsIds[1] = vrep.getHandle("HeadPitch#0");
-    naoJointsIds[2] = vrep.getHandle("LHipYawPitch3#0");
-    naoJointsIds[3] = vrep.getHandle("LHipRoll3#0");
-    naoJointsIds[4] = vrep.getHandle("LHipPitch3#0");
-    naoJointsIds[5] = vrep.getHandle("LKneePitch3#0");
-    naoJointsIds[6] =	vrep.getHandle("LAnklePitch3#0");
-    naoJointsIds[7] = vrep.getHandle("LAnkleRoll3#0");
-    naoJointsIds[8] = vrep.getHandle("RHipYawPitch3#0");
-    naoJointsIds[9] = vrep.getHandle("RHipRoll3#0");
-    naoJointsIds[10] = vrep.getHandle("RHipPitch3#0");
-    naoJointsIds[11] = vrep.getHandle("RKneePitch3#0");
-    naoJointsIds[12] =	vrep.getHandle("RAnklePitch3#0");
-    naoJointsIds[13] = vrep.getHandle("RAnkleRoll3#0");
-    naoJointsIds[14] = vrep.getHandle("LShoulderPitch3#0");
-    naoJointsIds[15] = vrep.getHandle("LShoulderRoll3#0");
-    naoJointsIds[16] = vrep.getHandle("LElbowYaw3#0");
-    naoJointsIds[17] = vrep.getHandle("LElbowRoll3#0");
-    naoJointsIds[18] = vrep.getHandle("LWristYaw3#0");
-    naoJointsIds[19] = vrep.getHandle("RShoulderPitch3#0");
-    naoJointsIds[20] = vrep.getHandle("RShoulderRoll3#0");
-    naoJointsIds[21] = vrep.getHandle("RElbowYaw3#0");
-    naoJointsIds[22] = vrep.getHandle("RElbowRoll3#0");
-    naoJointsIds[23] = vrep.getHandle("RWristYaw3#0");
-    /*while(true) {
-      listAngles = motion.getAngles("Body", false);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[0], listAngles.at(0), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[1], listAngles.at(1), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[2], listAngles.at(8), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[3], listAngles.at(9), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[4], listAngles.at(10), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[5], listAngles.at(11), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[6], listAngles.at(12), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[7], listAngles.at(13), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[8], listAngles.at(14), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[9], listAngles.at(15), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[10], listAngles.at(16), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[11], listAngles.at(17), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[12], listAngles.at(18), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[13], listAngles.at(19), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[14], listAngles.at(2), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[15], listAngles.at(3), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[16], listAngles.at(4), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[17], listAngles.at(5), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[18], listAngles.at(6), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[19], listAngles.at(20), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[20], listAngles.at(21), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[21], listAngles.at(22), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[22], listAngles.at(23), simx_opmode_streaming);
-      simxSetJointTargetPosition(vrep.getClientID(), naoJointsIds[23], listAngles.at(24), simx_opmode_streaming);
-    }*/
 
+    simxInt naoJointsIds[24];
     int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
     resetMap(map);
 
@@ -806,7 +697,6 @@ int main(int argc, char* argv[]) {
     opp_robots.push_back("NAO#3");
     opp_robots.push_back("NAO#4");
     opp_robots.push_back("NAO#5");
-
 
     for(const auto jointName : team_robots_joints) {
       team_robots_joints_ids.push_back(vrep.getHandle(jointName));
@@ -864,7 +754,6 @@ int main(int argc, char* argv[]) {
     }
     updateMap(map, ball_coord, BALL);
 
-
     float occupancy[MAP_X][MAP_Y], occupancy2[MAP_X][MAP_Y], occupancy3[MAP_X][MAP_Y];
     resetOccupancyGrid(occupancy);
     if(!IS_MAP_SHARED) {
@@ -874,7 +763,6 @@ int main(int argc, char* argv[]) {
 
     auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
 
-    //updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
     //std::cout.precision(2);
     bool valid;
 
@@ -882,17 +770,11 @@ int main(int argc, char* argv[]) {
       sleep(1);
       team_robots_coords.clear();
       team_robots_orient.clear();
+      team_robots_head_orient.clear();
 
-      //vrep.getObjectPosition(ball_id, ball_coord);
-      /*valid = false;
-      while(!valid) {
-        auto result = simxGetObjectPosition(vrep.getClientID(), ball_id, -1, ball_coord, simx_opmode_oneshot_wait);
-        if(result == simx_return_ok) {
-          valid = true;
-        }
-      }*/
       ball_coord[0] = comm->getBallX();
       ball_coord[1] = comm->getBallY();
+      cout << "Ball coords: " << ball_coord[0] << " " << ball_coord[1] << endl;
 
       aux_coord[0] = comm->getRobot0X();
       aux_coord[1] = comm->getRobot0Y();
@@ -910,6 +792,13 @@ int main(int argc, char* argv[]) {
       aux_coord[2] = comm->getRobot2Z();
       team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
 
+      aux_coord[2] = comm->getRobot0HeadZ();
+      team_robots_head_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[2] = comm->getRobot1HeadZ();
+      team_robots_head_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+      aux_coord[2] = comm->getRobot2HeadZ();
+      team_robots_head_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+
       aux_coord[0] = comm->getOpp0X();
       aux_coord[1] = comm->getOpp0Y();
       opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
@@ -926,46 +815,9 @@ int main(int argc, char* argv[]) {
       aux_coord[2] = comm->getOpp2Z();
       opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
 
-      /*
-      for(auto const& id : team_robots_head_ids) {
-        valid = false;
-        while(!valid) {
-          auto result = simxGetObjectPosition(vrep.getClientID(), id, -1, aux_coord, simx_opmode_oneshot_wait);
-          if(result == simx_return_ok)
-            valid = true;
-        }
-        //vrep.getObjectPosition(id, aux_coord);
-        team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-        valid = false;
-        while(!valid) {
-          auto result = simxGetObjectOrientation(vrep.getClientID(), id, -1, aux_coord, simx_opmode_oneshot_wait);
-          if(result == simx_return_ok)
-            valid = true;
-        }
-        //vrep.getObjectOrientation(id, aux_coord);
-        team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      }
-      for(auto const& id : opp_robots_ids) {
-        valid = false;
-        while(!valid) {
-          auto result = simxGetObjectPosition(vrep.getClientID(), id, -1, aux_coord, simx_opmode_oneshot_wait);
-          if(result == simx_return_ok)
-            valid = true;
-        }
-        //vrep.getObjectPosition(id, aux_coord);
-        opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-        valid = false;
-        while(!valid) {
-          auto result = simxGetObjectOrientation(vrep.getClientID(), id, -1, aux_coord, simx_opmode_oneshot_wait);
-          if(result == simx_return_ok)
-            valid = true;
-        }
-        //vrep.getObjectOrientation(id, aux_coord);
-        opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      }
-      */
+
       if(IS_MAP_SHARED) {
-        updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_orient);
+        updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_head_orient);
         printGnuPlot(occupancy);
       }
       else {
@@ -1006,9 +858,9 @@ int main(int argc, char* argv[]) {
           while(!valid) {
             auto result = simxSetJointTargetVelocity(vrep.getClientID(), team_robots_joints_ids.at(i), speed, simx_opmode_oneshot_wait);
             if(result == simx_return_ok)
-              valid = true;
+            valid = true;
           }
-          //vrep.setJointVelocity(team_robots_joints_ids.at(i), speed);
+          //vrep.setJointVelocity(team_robots_joints_ids.at(i), 0.5);
         }
       }
       else {
@@ -1061,8 +913,6 @@ int main(int argc, char* argv[]) {
           if(result == simx_return_ok)
             valid = true;
         }
-        //vrep.setJointVelocity(team_robots_joints_ids.at(2), speed);
-
       }
 
     }

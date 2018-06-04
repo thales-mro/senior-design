@@ -6,7 +6,7 @@ Communication::Communication(simxInt clientID) {
 	this->clientID = clientID;
 	cout << "I`m alive" << endl;
 
-	for(int i = 0; i < 24; i++) {
+	for(int i = 0; i < 40; i++) {
 		simxGetObjectHandle(clientID, robot0[i].c_str(), &naoJointsIds0[i], simx_opmode_oneshot_wait);
 		simxGetObjectHandle(clientID, robot1[i].c_str(), &naoJointsIds1[i], simx_opmode_oneshot_wait);
 		simxGetObjectHandle(clientID, robot2[i].c_str(), &naoJointsIds2[i], simx_opmode_oneshot_wait);
@@ -16,6 +16,7 @@ Communication::Communication(simxInt clientID) {
 	for(int i = 0; i < oppRobotsNames.size(); i++) {
 		simxGetObjectHandle(clientID, oppRobotsNames.at(i).c_str(), &oppRobotsIds[i], simx_opmode_oneshot_wait);
 		simxGetObjectHandle(clientID, heads.at(i).c_str(), &headsIds[i], simx_opmode_oneshot_wait);
+		simxGetObjectHandle(clientID, robots.at(i).c_str(), &robotsIds[i], simx_opmode_oneshot_wait);
 	}
 
 	updateVariables();
@@ -36,7 +37,7 @@ void Communication::testConnectionVREP() {
 }
 
 void Communication::testConnectionChoregraphe() {
-	AL::ALMotionProxy m("127.0.0.1:33375", 9559);
+	AL::ALMotionProxy m("127.0.0.1:36355", 9559);
 	cout << "Entered Choregraphe routine" << endl;
 	std::vector<float> listAngles;
 
@@ -46,10 +47,10 @@ void Communication::testConnectionChoregraphe() {
 		cout << "Angle " << i << ": " << listAngles.at(i) << endl;
 	}
 
-	AL::ALValue x = 0.0f;
-	AL::ALValue y = 1.0f;
+	AL::ALValue x = 0.2f;
+	AL::ALValue y = 0.2f;
 	AL::ALValue theta = 0.0f;
-	motion.moveToward(x, y, theta);
+	//motion.moveToward(x, y, theta);
 
 }
 
@@ -58,9 +59,14 @@ void Communication::updateVariables() {
 	simxGetObjectPosition(clientID, headsIds[0], -1, robot0Coords, simx_opmode_streaming);
 	simxGetObjectPosition(clientID, headsIds[1], -1, robot1Coords, simx_opmode_streaming);
 	simxGetObjectPosition(clientID, headsIds[2], -1, robot2Coords, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, headsIds[0], -1, robot0Orient, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, headsIds[1], -1, robot1Orient, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, headsIds[2], -1, robot2Orient, simx_opmode_streaming);
+	simxGetObjectOrientation(clientID, headsIds[0], -1, robot0HeadOrient, simx_opmode_streaming);
+	simxGetObjectOrientation(clientID, headsIds[1], -1, robot1HeadOrient, simx_opmode_streaming);
+	simxGetObjectOrientation(clientID, headsIds[2], -1, robot2HeadOrient, simx_opmode_streaming);
+
+	simxGetObjectOrientation(clientID, robotsIds[0], -1, robot0Orient, simx_opmode_streaming);
+	simxGetObjectOrientation(clientID, robotsIds[1], -1, robot1Orient, simx_opmode_streaming);
+	simxGetObjectOrientation(clientID, robotsIds[2], -1, robot2Orient, simx_opmode_streaming);
+
 	simxGetObjectPosition(clientID, oppRobotsIds[0], -1, opp0Coords, simx_opmode_streaming);
 	simxGetObjectPosition(clientID, oppRobotsIds[1], -1, opp1Coords, simx_opmode_streaming);
 	simxGetObjectPosition(clientID, oppRobotsIds[2], -1, opp2Coords, simx_opmode_streaming);
@@ -71,9 +77,11 @@ void Communication::updateVariables() {
 
 
 void Communication::updateJointsPositions() {
-	AL::ALMotionProxy m("127.0.0.1:33375", 9559);
+	AL::ALMotionProxy m("127.0.0.1:36355", 9559);
 	cout << "Entered Choregraphe routine" << endl;
 	std::vector<float> listAngles;
+	motion.moveInit();
+	m.moveToward(0.0f, 1.0f, 0.0f);
 	while(true) {
 		updateVariables();
 		//cout << "Hello, deepest fears" << endl;
@@ -102,6 +110,23 @@ void Communication::updateJointsPositions() {
 		simxSetJointTargetPosition(clientID, naoJointsIds0[21], listAngles.at(22), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[22], listAngles.at(23), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[23], listAngles.at(24), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[24], 1.0f - listAngles.at(7), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[25], 1.0f - listAngles.at(7), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[26], 1.0f - listAngles.at(7), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[27], 1.0f - listAngles.at(7), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[28], 1.0f - listAngles.at(7), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[29], 1.0f - listAngles.at(7), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[30], 1.0f - listAngles.at(7), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[31], 1.0f - listAngles.at(7), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[32], 1.0f - listAngles.at(25), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[33], 1.0f - listAngles.at(25), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[34], 1.0f - listAngles.at(25), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[35], 1.0f - listAngles.at(25), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[36], 1.0f - listAngles.at(25), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[37], 1.0f - listAngles.at(25), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[38], 1.0f - listAngles.at(25), simx_opmode_streaming);
+		simxSetJointTargetPosition(clientID, naoJointsIds0[39], 1.0f - listAngles.at(25), simx_opmode_streaming);
+		//cout << "I`m alive..." << endl;
 	}
 	cout << "I`m about to dieee" << endl;
 }

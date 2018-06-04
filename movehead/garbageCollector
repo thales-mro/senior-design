@@ -87,5 +87,38 @@
 	//robot2 = {"HeadYaw#2", "HeadPitch#2", "LHipYawPitch3#2", "LHipRoll3#2", "LHipPitch3#2", "LKneePitch3#2", "LAnklePitch3#2", "LAnkleRoll3#2", "RHipYawPitch3#2", "RHipRoll3#2", "RHipPitch3#2", "RKneePitch3#2", "RAnklePitch3#2", "RAnkleRoll3#2", "LShoulderPitch3#2", "LShoulderRoll3#2", "LElbowYaw3#2", "LElbowRoll3#2", "LWristYaw3#2", "RShoulderPitch3#2", "RShoulderRoll3#2", "RElbowYaw3#2",  "RElbowRoll3#2", "RWristYaw3#2"};
 
 
+  /*simxInt clientID = simxStart("127.0.0.1", PORT_NUMBER, TRUE, TRUE, 2000, 5);
+  if(clientID != -1) {
+		cout << "Deu certo, porra: " << clientID << endl;
+		simxInt handle = -1;
+		std::string name = "HeadYaw";
+		simxGetObjectHandle(clientID, name.c_str(), &handle, simx_opmode_oneshot_wait);
+		cout << "Sera?: " << handle << endl;
+	}*/
+
+
+
+    //sleep(10);
+    /*while(true) {
+      parallel = motion.getAngles("Body", false);
+      for(int i = 0; i < listangles.size(); i++) {
+        //if(parallel.at(i) != listangles.at(i))
+          //cout << "Angle " << i << ": " << parallel.at(i) << endl;
+      }
+      listangles = parallel;
+    }*/
+
+    // First, we must connect to the v-rep simulator server
+    // For local connection, the IP is "127.0.0.1"
+    /*simxInt clientID = simxStart("127.0.0.1", PORT_NUMBER, TRUE, TRUE, 2000, 5);
+    if(clientID != -1) {
+      cout << "Deu certo, porra: " << clientID << endl;
+      simxInt handle = -1;
+      std::string name = "HeadYaw";
+      simxGetObjectHandle(clientID, name.c_str(), &handle, simx_opmode_oneshot_wait);
+      cout << "Sera?: " << handle << endl;
+    }*/
+
+
 
 
