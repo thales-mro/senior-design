@@ -1,4 +1,6 @@
 #include <Communication.hpp>
+#include <stdlib.h>
+#include <time.h>
 
 using namespace std;
 
@@ -7,19 +9,21 @@ Communication::Communication(simxInt clientID) {
 	cout << "I`m alive" << endl;
 
 	for(int i = 0; i < 40; i++) {
-		simxGetObjectHandle(clientID, robot0[i].c_str(), &naoJointsIds0[i], simx_opmode_oneshot_wait);
-		simxGetObjectHandle(clientID, robot1[i].c_str(), &naoJointsIds1[i], simx_opmode_oneshot_wait);
-		simxGetObjectHandle(clientID, robot2[i].c_str(), &naoJointsIds2[i], simx_opmode_oneshot_wait);
+	 	cout << robot[i];
+	 	simxGetObjectHandle(clientID, robot[i].c_str(), &naoJointsIds0[i], simx_opmode_oneshot_wait);
+	 	//simxGetObjectHandle(clientID, robot1[i].c_str(), &naoJointsIds1[i], simx_opmode_oneshot_wait);
+	 	//simxGetObjectHandle(clientID, robot2[i].c_str(), &naoJointsIds2[i], simx_opmode_oneshot_wait);
+	 	cout << " " << naoJointsIds0[i] << endl;
 	}
-	std::string ball = "Ball";
-	simxGetObjectHandle(clientID, ball.c_str(), &ballId, simx_opmode_oneshot_wait);
-	for(int i = 0; i < oppRobotsNames.size(); i++) {
-		simxGetObjectHandle(clientID, oppRobotsNames.at(i).c_str(), &oppRobotsIds[i], simx_opmode_oneshot_wait);
-		simxGetObjectHandle(clientID, heads.at(i).c_str(), &headsIds[i], simx_opmode_oneshot_wait);
-		simxGetObjectHandle(clientID, robots.at(i).c_str(), &robotsIds[i], simx_opmode_oneshot_wait);
-	}
+	// std::string ball = "Ball";
+	// simxGetObjectHandle(clientID, ball.c_str(), &ballId, simx_opmode_oneshot_wait);
+	// for(int i = 0; i < oppRobotsNames.size(); i++) {
+	// 	//simxGetObjectHandle(clientID, oppRobotsNames.at(i).c_str(), &oppRobotsIds[i], simx_opmode_oneshot_wait);
+	// 	//simxGetObjectHandle(clientID, heads.at(i).c_str(), &headsIds[i], simx_opmode_oneshot_wait);
+	// 	//simxGetObjectHandle(clientID, robots.at(i).c_str(), &robotsIds[i], simx_opmode_oneshot_wait);
+	// }
 
-	updateVariables();
+	//updateVariables();
 
 }
 
@@ -81,13 +85,18 @@ void Communication::updateJointsPositions() {
 	cout << "Entered Choregraphe routine" << endl;
 	std::vector<float> listAngles;
 	motion.moveInit();
-	m.moveToward(0.0f, 1.0f, 0.0f);
+	sleep(5);
+	m.moveToward(0.0f, 0.0f, 0.0f);
+	//sleep(15);
+	bool first = true;
 	while(true) {
 		updateVariables();
-		//cout << "Hello, deepest fears" << endl;
+		int result = 0;
+		//cout << "Hello, deepest fears " << result << endl;
 		listAngles = m.getAngles("Body", false);
+		//cout << clientID << endl;
 		//simxSetJointTargetPosition(clientID, naoJointsIds0[0], listAngles.at(0), simx_opmode_streaming);
-		simxSetJointTargetPosition(clientID, naoJointsIds0[1], listAngles.at(1), simx_opmode_streaming);
+		//simxSetJointTargetPosition(clientID, naoJointsIds0[1], listAngles.at(1), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[2], listAngles.at(8), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[3], listAngles.at(9), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[4], listAngles.at(10), simx_opmode_streaming);
@@ -127,6 +136,12 @@ void Communication::updateJointsPositions() {
 		simxSetJointTargetPosition(clientID, naoJointsIds0[38], 1.0f - listAngles.at(25), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[39], 1.0f - listAngles.at(25), simx_opmode_streaming);
 		//cout << "I`m alive..." << endl;
+		if(first) {
+			sleep(10);
+			first = false;
+			m.moveToward(0.5f, 0.0f, 0.0f);
+		}
+
 	}
 	cout << "I`m about to dieee" << endl;
 }

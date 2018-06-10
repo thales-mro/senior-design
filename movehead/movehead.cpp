@@ -621,16 +621,22 @@ int main(int argc, char* argv[]) {
     * - IP adress of the robot
     * - port on which NAOqi is listening, by default 9559
     */
+
     AL::ALMotionProxy motion("127.0.0.1:36355", 9559);
+		//AL::
 
     std::vector<float> listAngles;
     std::vector<float> parallel;
 
-    AL::ALValue x = 1.0f;
-    AL::ALValue y = 0.0f;
+    AL::ALValue x = 0.5f;
+    AL::ALValue y = 0.5f;
     AL::ALValue theta = 0.5f;
 
-    motion.moveInit();
+		//motion.stiffnessInterpolation("Body", 1.0, 1.0);
+
+		//motion.goToPosture('StandZero', 1.0, 1.0);
+		//motion.moveToward(0,0,0);
+    //motion.moveInit();
     //motion.moveToward(x, y, theta);
 
     simxInt ball_id, goal_left_id, goal_right_id;
@@ -675,10 +681,15 @@ int main(int argc, char* argv[]) {
     auto sim = new Simulator("127.0.0.1", PORT_NUMBER);
     Simulator &vrep = *sim;
     vrep.connectServer();
-    cout << "Server connected!" << endl;
-
+    cout << "Server connected! " << vrep.getClientID() << endl;
     Communication *comm = new Communication(vrep.getClientID());
-    comm->testConnectionVREP();
+		// cout << "About to start thread" << endl;
+		auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
+		// //sleep(10);
+		// //motion.moveToward(0.5, 0, 0);
+		while(true);
+		/*
+		comm->testConnectionVREP();
     comm->testConnectionChoregraphe();
     cout << "Connections tested" << endl;
 
@@ -918,7 +929,7 @@ int main(int argc, char* argv[]) {
     }
 
     cout << "About to End" << endl;
-    vrep.disconnectServer();
+    vrep.disconnectServer();*/
   }
   catch (const AL::ALError& e) {
     std::cerr << "Caught exception: " << e.what() << std::endl;
