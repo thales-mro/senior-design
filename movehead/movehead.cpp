@@ -1,13 +1,3 @@
-/**
-* Copyright (c) 2011 Aldebaran Robotics. All Rights Reserved
-*
-* \file movehead.cpp
-* \brief Move NAO's head.
-*
-* A simple example showing how to move NAO's head by using ALMotionProxy.
-* This example will make NAO turn its head left and right slowly.
-* We use here a specialized proxy to ALMotion.
-*/
 #define _GLIBCXX_USE_CXX11_ABI 0
 #include <iostream>
 #include <alerror/alerror.h>
@@ -106,12 +96,12 @@ void generateNormalDistributionFOV() {
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void startEngine(Engine *engine) {
-	engine->setName("PanControl");
-	engine->setDescription("Defines robot pan control (speed)");
+void startEngine(Engine *gazeControlEngine) {
+	gazeControlEngine->setName("PanControl");
+	gazeControlEngine->setDescription("Defines robot pan control (speed)");
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void configBallInputVariables(Engine *engine, InputVariable *ballDistance,InputVariable *ballAngle,InputVariable *ballConfidence) {
+void configBallInputVariables(Engine *gazeControlEngine, InputVariable *ballDistance,InputVariable *ballAngle,InputVariable *ballConfidence) {
 	ballDistance->setName("BallDistance");
 	ballDistance->setDescription("Checks whether the robot have the ball or not");
 	ballDistance->setEnabled(true);
@@ -119,7 +109,7 @@ void configBallInputVariables(Engine *engine, InputVariable *ballDistance,InputV
 	ballDistance->setLockValueInRange(false);
 	ballDistance->addTerm(new Triangle("haveBall", 0, 0.05, 0.2));
 	ballDistance->addTerm(new Trapezoid("doNotHaveBall",0.15, 0.30, 14.5, 14.5));
-	engine->addInputVariable(ballDistance);
+	gazeControlEngine->addInputVariable(ballDistance);
 
 	ballAngle->setName("BallAngle");
 	ballAngle->setDescription("Checks the angle of the ball towards the robot");
@@ -132,7 +122,7 @@ void configBallInputVariables(Engine *engine, InputVariable *ballDistance,InputV
 	ballAngle->addTerm(new Triangle("littleToRight", -1.06, -0.502, 0));
 	ballAngle->addTerm(new Trapezoid("moderateToRight", -1.617, -1.297, -0.8403, -0.4854));
 	ballAngle->addTerm(new Trapezoid("aLotToRight", -3.297, -3.017, -1.767, -1.057));
-	engine->addInputVariable(ballAngle);
+	gazeControlEngine->addInputVariable(ballAngle);
 
 	ballConfidence->setName("BallConfidence");
 	ballConfidence->setDescription("Checks the confidence in ball's location");
@@ -140,10 +130,10 @@ void configBallInputVariables(Engine *engine, InputVariable *ballDistance,InputV
 	ballConfidence->setRange(0.000, 1.000);
 	ballConfidence->setLockValueInRange(false);
 	ballConfidence->addTerm(new Trapezoid("lowConfidence", 0, 0, 0.4501, 0.7968));
-	engine->addInputVariable(ballConfidence);
+	gazeControlEngine->addInputVariable(ballConfidence);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void configOppPlayerInputVariables(Engine *engine, InputVariable *oppAngle, InputVariable *oppConfidence, int id) {
+void configOppPlayerInputVariables(Engine *gazeControlEngine, InputVariable *oppAngle, InputVariable *oppConfidence, int id) {
 	oppAngle->setName("oppRobotAngle" + to_string(id));
 	oppAngle->setDescription("Checks the angle of a opponent robot towards the robot");
 	oppAngle->setEnabled(true);
@@ -155,7 +145,7 @@ void configOppPlayerInputVariables(Engine *engine, InputVariable *oppAngle, Inpu
 	oppAngle->addTerm(new Triangle("littleToRight", -1.06, -0.502, 0));
 	oppAngle->addTerm(new Trapezoid("moderateToRight", -3.297, -3.017, -0.8403, -0.4807));
 	//oppAngle->addTerm(new Trapezoid("aLotToRight", -3.297, -3.017, -1.767, -1.057));
-	engine->addInputVariable(oppAngle);
+	gazeControlEngine->addInputVariable(oppAngle);
 
 	oppConfidence->setName("oppConfidence" + to_string(id));
 	oppConfidence->setDescription("Checks the confidence in opponent's location");
@@ -163,10 +153,10 @@ void configOppPlayerInputVariables(Engine *engine, InputVariable *oppAngle, Inpu
 	oppConfidence->setRange(0.000, 1.000);
 	oppConfidence->setLockValueInRange(false);
 	oppConfidence->addTerm(new Trapezoid("lowConfidence", 0, 0, 0.4, 0.6958));
-	engine->addInputVariable(oppConfidence);
+	gazeControlEngine->addInputVariable(oppConfidence);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void configPanAngleOutputVariable(Engine *engine, OutputVariable *panAngle) {
+void configPanAngleOutputVariable(Engine *gazeControlEngine, OutputVariable *panAngle) {
 	panAngle->setName("panAngle");
 	panAngle->setDescription("Sets pan yaw velocity of head joint");
 	panAngle->setEnabled(true);
@@ -187,36 +177,36 @@ void configPanAngleOutputVariable(Engine *engine, OutputVariable *panAngle) {
 	panAngle->addTerm(new Trapezoid("panToBallLittleToRight", -0.6427, -0.5537,-0.3537, -0.2137));
 	panAngle->addTerm(new Trapezoid("panToBallModerateToRight", -0.7992, -0.6842, -0.4842, -0.3362));
 	panAngle->addTerm(new Trapezoid("panToBallALotToRight", -0.9975, -0.8605, -0.7355, -0.5855));
-	engine->addOutputVariable(panAngle);
+	gazeControlEngine->addOutputVariable(panAngle);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void configPanRules(Engine *engine, RuleBlock *mamdani) {
-	mamdani->setName("mamdani");
-	mamdani->setDescription("");
-	mamdani->setEnabled(true);
-	mamdani->setConjunction(new Minimum);
-	mamdani->setDisjunction(new Maximum);
-	mamdani->setImplication(new AlgebraicProduct);
-	mamdani->setActivation(new General);
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is littleToLeft and BallConfidence is lowConfidence then panAngle is panToBallLittleToLeft", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is moderateToLeft and BallConfidence is lowConfidence then panAngle is panToBallModerateToLeft", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is aLotToLeft and BallConfidence is lowConfidence then panAngle is panToBallALotToLeft", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is littleToRight and BallConfidence is lowConfidence then panAngle is panToBallLittleToRight", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is moderateToRight and BallConfidence is lowConfidence then panAngle is panToBallModerateToRight", engine));
-	mamdani->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is aLotToRight and BallConfidence is lowConfidence then panAngle is panToBallALotToRight", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is littleToLeft then panAngle is panLittleToLeft", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is littleToRight then panAngle is panLittleToRight", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is moderateToLeft then panAngle is panModerateToLeft", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is moderateToRight then panAngle is panModerateToRight", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is littleToLeft then panAngle is panLittleToLeft", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is littleToRight then panAngle is panLittleToRight", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is moderateToLeft then panAngle is panModerateToLeft", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is moderateToRight then panAngle is panModerateToRight", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is littleToLeft then panAngle is panLittleToLeft", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is littleToRight then panAngle is panLittleToRight", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is moderateToLeft then panAngle is panModerateToLeft", engine));
-	mamdani->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is moderateToRight then panAngle is panModerateToRight", engine));
-	engine->addRuleBlock(mamdani);
+void configPanRules(Engine *gazeControlEngine, RuleBlock *gazeControlRuleBlock) {
+	gazeControlRuleBlock->setName("gazeControlRuleBlock");
+	gazeControlRuleBlock->setDescription("");
+	gazeControlRuleBlock->setEnabled(true);
+	gazeControlRuleBlock->setConjunction(new Minimum);
+	gazeControlRuleBlock->setDisjunction(new Maximum);
+	gazeControlRuleBlock->setImplication(new AlgebraicProduct);
+	gazeControlRuleBlock->setActivation(new General);
+	gazeControlRuleBlock->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is littleToLeft and BallConfidence is lowConfidence then panAngle is panToBallLittleToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is moderateToLeft and BallConfidence is lowConfidence then panAngle is panToBallModerateToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is aLotToLeft and BallConfidence is lowConfidence then panAngle is panToBallALotToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is littleToRight and BallConfidence is lowConfidence then panAngle is panToBallLittleToRight", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is moderateToRight and BallConfidence is lowConfidence then panAngle is panToBallModerateToRight", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if BallDistance is doNotHaveBall and BallAngle is aLotToRight and BallConfidence is lowConfidence then panAngle is panToBallALotToRight", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is littleToLeft then panAngle is panLittleToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is littleToRight then panAngle is panLittleToRight", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is moderateToLeft then panAngle is panModerateToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence1 is lowConfidence and oppRobotAngle1 is moderateToRight then panAngle is panModerateToRight", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is littleToLeft then panAngle is panLittleToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is littleToRight then panAngle is panLittleToRight", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is moderateToLeft then panAngle is panModerateToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence2 is lowConfidence and oppRobotAngle2 is moderateToRight then panAngle is panModerateToRight", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is littleToLeft then panAngle is panLittleToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is littleToRight then panAngle is panLittleToRight", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is moderateToLeft then panAngle is panModerateToLeft", gazeControlEngine));
+	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is moderateToRight then panAngle is panModerateToRight", gazeControlEngine));
+	gazeControlEngine->addRuleBlock(gazeControlRuleBlock);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void resetOccupancyGrid(float m[][MAP_Y]) {
@@ -399,10 +389,10 @@ double calculateAngleForOppRobotsFuzzy(const boost::tuple<simxFloat, simxFloat, 
 	return calculateAngleForFuzzy(angle, z_angle);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void processFuzzy(Engine *engine, InputVariable *ballDistance, InputVariable *ballAngle, InputVariable *ballConfidence, InputVariable* opp1Confidence, InputVariable* opp1Angle,InputVariable* opp2Confidence, InputVariable* opp2Angle,InputVariable* opp3Confidence, InputVariable* opp3Angle, OutputVariable *panAngle, const boost::tuple<simxFloat, simxFloat, simxFloat>& robot_coord,  const boost::tuple<simxFloat, simxFloat, simxFloat> robot_orient, simxFloat* ball_coord, simxFloat ball_confidence, const std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& opp_robots_coords, const std::vector<simxFloat> opp_robots_confidence) {
+void processFuzzy(Engine *gazeControlEngine, InputVariable *ballDistance, InputVariable *ballAngle, InputVariable *ballConfidence, InputVariable* opp1Confidence, InputVariable* opp1Angle,InputVariable* opp2Confidence, InputVariable* opp2Angle,InputVariable* opp3Confidence, InputVariable* opp3Angle, OutputVariable *panAngle, const boost::tuple<simxFloat, simxFloat, simxFloat>& robot_coord,  const boost::tuple<simxFloat, simxFloat, simxFloat> robot_orient, simxFloat* ball_coord, simxFloat ball_confidence, const std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& opp_robots_coords, const std::vector<simxFloat> opp_robots_confidence) {
 	string status;
-	if(not engine->isReady(&status))
-		throw Exception("[engine error] engine is not ready:n" + status, FL_AT);
+	if(not gazeControlEngine->isReady(&status))
+		throw Exception("[gazeControlEngine error] gazeControlEngine is not ready:n" + status, FL_AT);
 
 	simxFloat x_coord = boost::get<0>(robot_coord);
 	simxFloat y_coord = boost::get<1>(robot_coord);
@@ -424,7 +414,7 @@ void processFuzzy(Engine *engine, InputVariable *ballDistance, InputVariable *ba
 	opp2Confidence->setValue(opp_robots_confidence.at(1));
 	opp3Confidence->setValue(opp_robots_confidence.at(2));
 
-	engine->process();
+	gazeControlEngine->process();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 simxFloat calculateDistributionBasedOnAngleInDegrees(simxFloat alpha, simxFloat robotAngle, simxFloat dist) {
@@ -549,7 +539,6 @@ void zeroesRobotsJointsVelocity(const std::vector<simxInt>& team_robots_joints_i
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void printGnuPlot(float occupancyGrid[][MAP_Y]) {
-
 	gp << "set xrange [-6:6]\n";
 	gp << "set yrange [-6:6]\n";
 	gp << "set zrange [-1:1]\n";
@@ -654,7 +643,7 @@ int main(int argc, char* argv[]) {
 
     Gnuplot gpRobot1, gpRobot2, gpRobot3;
 
-    Engine *engine = new Engine;
+    Engine *gazeControlEngine = new Engine;
     InputVariable *ballAngle = new InputVariable;
     InputVariable *ballDistance = new InputVariable;
     InputVariable *ballConfidence = new InputVariable;
@@ -665,14 +654,14 @@ int main(int argc, char* argv[]) {
     InputVariable *opp3Confidence = new InputVariable;
     InputVariable *opp3Angle = new InputVariable;
     OutputVariable *panAngle = new OutputVariable;
-    RuleBlock *mamdani = new RuleBlock;
-    startEngine(engine);
-    configBallInputVariables(engine, ballDistance, ballAngle, ballConfidence);
-    configOppPlayerInputVariables(engine, opp1Angle, opp1Confidence, 1);
-    configOppPlayerInputVariables(engine, opp2Angle, opp2Confidence, 2);
-    configOppPlayerInputVariables(engine, opp3Angle, opp3Confidence, 3);
-    configPanAngleOutputVariable(engine, panAngle);
-    configPanRules(engine, mamdani);
+    RuleBlock *gazeControlRuleBlock = new RuleBlock;
+    startEngine(gazeControlEngine);
+    configBallInputVariables(gazeControlEngine, ballDistance, ballAngle, ballConfidence);
+    configOppPlayerInputVariables(gazeControlEngine, opp1Angle, opp1Confidence, 1);
+    configOppPlayerInputVariables(gazeControlEngine, opp2Angle, opp2Confidence, 2);
+    configOppPlayerInputVariables(gazeControlEngine, opp3Angle, opp3Confidence, 3);
+    configPanAngleOutputVariable(gazeControlEngine, panAngle);
+    configPanRules(gazeControlEngine, gazeControlRuleBlock);
 
     generateNormalDistributionRange();
     generateNormalDistributionFOV();
@@ -682,22 +671,22 @@ int main(int argc, char* argv[]) {
     Simulator &vrep = *sim;
     vrep.connectServer();
     cout << "Server connected! " << vrep.getClientID() << endl;
-    Communication *comm = new Communication(vrep.getClientID());
+    Communication comm(vrep.getClientID());
 		// cout << "About to start thread" << endl;
 		auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
 		// //sleep(10);
 		// //motion.moveToward(0.5, 0, 0);
-		while(true);
-		/*
-		comm->testConnectionVREP();
-    comm->testConnectionChoregraphe();
+		//while(true);
+
+		//comm->testConnectionVREP();
+    //comm->testConnectionChoregraphe();
     cout << "Connections tested" << endl;
 
     simxInt naoJointsIds[24];
     int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
     resetMap(map);
 
-    team_robots_joints.push_back("HeadYaw");
+    /*team_robots_joints.push_back("HeadYaw");
     team_robots_joints.push_back("HeadYaw#0");
     team_robots_joints.push_back("HeadYaw#1");
     team_robots_joints.push_back("HeadYaw#2");
@@ -764,6 +753,7 @@ int main(int argc, char* argv[]) {
       updateMap(map, coords, OPP_ROBOT);
     }
     updateMap(map, ball_coord, BALL);
+		*/
 
     float occupancy[MAP_X][MAP_Y], occupancy2[MAP_X][MAP_Y], occupancy3[MAP_X][MAP_Y];
     resetOccupancyGrid(occupancy);
@@ -772,7 +762,7 @@ int main(int argc, char* argv[]) {
       resetOccupancyGrid(occupancy3);
     }
 
-    auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
+    //auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
 
     //std::cout.precision(2);
     bool valid;
@@ -783,50 +773,61 @@ int main(int argc, char* argv[]) {
       team_robots_orient.clear();
       team_robots_head_orient.clear();
 
-      ball_coord[0] = comm->getBallX();
-      ball_coord[1] = comm->getBallY();
-      cout << "Ball coords: " << ball_coord[0] << " " << ball_coord[1] << endl;
+			std::vector<simxFloat> auxCoords;
 
-      aux_coord[0] = comm->getRobot0X();
-      aux_coord[1] = comm->getRobot0Y();
-      team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[0] = comm->getRobot1X();
-      aux_coord[1] = comm->getRobot1Y();
-      team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[0] = comm->getRobot2X();
-      aux_coord[1] = comm->getRobot2Y();
-      team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[2] = comm->getRobot0Z();
-      team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[2] = comm->getRobot1Z();
-      team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[2] = comm->getRobot2Z();
-      team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+			auxCoords.clear();
 
-      aux_coord[2] = comm->getRobot0HeadZ();
-      team_robots_head_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[2] = comm->getRobot1HeadZ();
-      team_robots_head_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[2] = comm->getRobot2HeadZ();
-      team_robots_head_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+			//auxCoords comm.getBallCoords();
 
-      aux_coord[0] = comm->getOpp0X();
-      aux_coord[1] = comm->getOpp0Y();
-      opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[0] = comm->getOpp1X();
-      aux_coord[1] = comm->getOpp1Y();
-      opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[0] = comm->getOpp2X();
-      aux_coord[1] = comm->getOpp2Y();
-      opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[2] = comm->getOpp0Z();
-      opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[2] = comm->getOpp1Z();
-      opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      aux_coord[2] = comm->getOpp2Z();
-      opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
+			//ball_coord[0] = auxCoords.at(0);
+			//ball_coord[1] = auxCoords.at(1);
+			auxCoords.clear();
+      //cout << "Ball coords: " << ball_coord[0] << " " << ball_coord[1] << endl;
 
+			auxCoords = comm.getRobot0Coords();
+			//cout << "Robot Coordinates " << auxCoords[0] << " " << auxCoords[1] << endl;
+      team_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+			/*auxCoords = comm.getRobot1Coords();
+      team_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+			auxCoords = comm.getRobot2Coords();
+			team_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();*/
 
+			auxCoords = comm.getOpp0Coords();
+			opp_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+			auxCoords = comm.getOpp1Coords();
+			opp_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+			auxCoords = comm.getOpp2Coords();
+			opp_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+
+			auxCoords = comm.getRobot0Orientation();
+			//cout << "Robot orientation: " << auxCoords.at(2) << endl;
+			team_robots_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+			/*auxCoords = comm.getRobot1Orientation();
+			team_robots_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+			auxCoords = comm.getRobot2Orientation();
+			team_robots_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();*/
+
+			auxCoords = comm.getRobot0HeadOrientation();
+			//cout << "Head orientation: " << auxCoords.at(2) << endl;
+			team_robots_head_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+			/*auxCoords = comm.getRobot1HeadOrientation();
+			team_robots_head_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();
+			auxCoords = comm.getRobot2HeadOrientation();
+			team_robots_head_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			auxCoords.clear();*/
+
+			//cout << "team robots size: " << team_robots_coords.size() << " " << team_robots_head_orient.size() << endl;
       if(IS_MAP_SHARED) {
         updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_head_orient);
         printGnuPlot(occupancy);
@@ -853,6 +854,7 @@ int main(int argc, char* argv[]) {
         printGnuPlot2(gpRobot2, occupancy2);
         printGnuPlot2(gpRobot3, occupancy3);
       }
+			/*
       if(IS_MAP_SHARED) {
         ball_confidence = occupancy[convertX(ball_coord[0])][convertY(ball_coord[1])];
         opp_robots_confidence.clear();
@@ -862,7 +864,7 @@ int main(int argc, char* argv[]) {
         }
 
         for(int i = 0; i < team_robots_coords.size(); i++) {
-          processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(i), team_robots_orient.at(i), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+          processFuzzy(gazeControlEngine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(i), team_robots_orient.at(i), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
           double speed = panAngle->getValue();
           cout << "calculated speed " << i << ": " << speed << endl;
           valid = false;
@@ -881,7 +883,7 @@ int main(int argc, char* argv[]) {
           boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
           opp_robots_confidence.push_back(occupancy[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
         }
-        processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(0), team_robots_orient.at(0), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+        processFuzzy(gazeControlEngine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(0), team_robots_orient.at(0), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         double speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
         valid = false;
@@ -898,7 +900,7 @@ int main(int argc, char* argv[]) {
           boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
           opp_robots_confidence.push_back(occupancy2[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
         }
-        processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(1), team_robots_orient.at(1), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+        processFuzzy(gazeControlEngine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(1), team_robots_orient.at(1), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
         valid = false;
@@ -915,7 +917,7 @@ int main(int argc, char* argv[]) {
           boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
           opp_robots_confidence.push_back(occupancy3[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
         }
-        processFuzzy(engine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(2), team_robots_orient.at(2), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+        processFuzzy(gazeControlEngine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(2), team_robots_orient.at(2), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
         valid = false;
@@ -925,11 +927,11 @@ int main(int argc, char* argv[]) {
             valid = true;
         }
       }
-
+			*/
     }
 
     cout << "About to End" << endl;
-    vrep.disconnectServer();*/
+    vrep.disconnectServer();
   }
   catch (const AL::ALError& e) {
     std::cerr << "Caught exception: " << e.what() << std::endl;
