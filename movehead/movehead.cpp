@@ -96,20 +96,25 @@ void generateNormalDistributionFOV() {
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void startEngine(Engine *gazeControlEngine) {
+void startGazeControlEngine(Engine *gazeControlEngine) {
 	gazeControlEngine->setName("PanControl");
 	gazeControlEngine->setDescription("Defines robot pan control (speed)");
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void configBallInputVariables(Engine *gazeControlEngine, InputVariable *ballDistance,InputVariable *ballAngle,InputVariable *ballConfidence) {
-	ballDistance->setName("BallDistance");
-	ballDistance->setDescription("Checks whether the robot have the ball or not");
-	ballDistance->setEnabled(true);
-	ballDistance->setRange(0.000, 15.000);
-	ballDistance->setLockValueInRange(false);
-	ballDistance->addTerm(new Triangle("haveBall", 0, 0.05, 0.2));
-	ballDistance->addTerm(new Trapezoid("doNotHaveBall",0.15, 0.30, 14.5, 14.5));
-	gazeControlEngine->addInputVariable(ballDistance);
+void startNavigationControlEngine(Engine *navigationControlEngine) {
+	navigationControlEngine->setName("Velocity Control");
+	navigationControlEngine->setDescription("Defines robot velocity control (x-axis and z-rotation (relative to robot))");
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void configBallInputVariables(Engine *gazeControlEngine, Engine *navigationControlEngine, InputVariable *ballReferenceForGazeControl,InputVariable *ballAngle,InputVariable *ballConfidence, InputVariable *distanceBall, InputVariable *teamHaveBall, InputVariable *closestToBall) {
+	ballReferenceForGazeControl->setName("BallDistance");
+	ballReferenceForGazeControl->setDescription("Checks whether the robot have the ball or not");
+	ballReferenceForGazeControl->setEnabled(true);
+	ballReferenceForGazeControl->setRange(0.000, 15.000);
+	ballReferenceForGazeControl->setLockValueInRange(false);
+	ballReferenceForGazeControl->addTerm(new Triangle("haveBall", 0, 0.05, 0.2));
+	ballReferenceForGazeControl->addTerm(new Trapezoid("doNotHaveBall",0.15, 0.30, 14.5, 14.5));
+	gazeControlEngine->addInputVariable(ballReferenceForGazeControl);
 
 	ballAngle->setName("BallAngle");
 	ballAngle->setDescription("Checks the angle of the ball towards the robot");
@@ -123,6 +128,7 @@ void configBallInputVariables(Engine *gazeControlEngine, InputVariable *ballDist
 	ballAngle->addTerm(new Trapezoid("moderateToRight", -1.617, -1.297, -0.8403, -0.4854));
 	ballAngle->addTerm(new Trapezoid("aLotToRight", -3.297, -3.017, -1.767, -1.057));
 	gazeControlEngine->addInputVariable(ballAngle);
+	navigationControlEngine->addInputVariable(ballAngle);
 
 	ballConfidence->setName("BallConfidence");
 	ballConfidence->setDescription("Checks the confidence in ball's location");
@@ -131,6 +137,34 @@ void configBallInputVariables(Engine *gazeControlEngine, InputVariable *ballDist
 	ballConfidence->setLockValueInRange(false);
 	ballConfidence->addTerm(new Trapezoid("lowConfidence", 0, 0, 0.4501, 0.7968));
 	gazeControlEngine->addInputVariable(ballConfidence);
+
+	distanceBall->setName("distanceBall");
+	distanceBall->setDescription("Distance to Ball from main robot");
+	distanceBall->setEnabled(true);
+	distanceBall->setRange(0.000, 11.000);
+	distanceBall->setLockValueInRange(false);
+	distanceBall->addTerm(new Triangle("close", 0, 0.15, 0.3));
+	distanceBall->addTerm(new Trapezoid("closeModerate", 0.2, 0.4, 0.6, 0.8));
+	distanceBall->addTerm(new Trapezoid("moderate", 0.5, 0.8, 1.1, 1.4));
+	distanceBall->addTerm(new Trapezoid("moderateFar", 1, 1.5, 2, 2.5));
+	distanceBall->addTerm(new Trapezoid("far", 2, 2.5, 10.8, 10.8));
+	navigationControlEngine->addInputVariable(distanceBall);
+
+	teamHaveBall->setName("teamHaveBall");
+	teamHaveBall->setDescription("Checks if team have ball possession");
+	teamHaveBall->setEnabled(true);
+	teamHaveBall->setRange(0.000, 2.000);
+	teamHaveBall->setLockValueInRange(false);
+	teamHaveBall->addTerm(new Triangle("definetelyHaveBall", 1, 1, 1));
+	navigationControlEngine->addInputVariable(teamHaveBall);
+
+	closestToBall->setName("closestToBall");
+	closestToBall->setDescription("Checks if controlled robot is the closest to ball");
+	closestToBall->setEnabled(true);
+	closestToBall->setRange(0.000, 2.000);
+	closestToBall->setLockValueInRange(false);
+	closestToBall->addTerm(new Triangle("closestToBall", 1, 1, 1));
+	navigationControlEngine->addInputVariable(closestToBall);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void configOppPlayerInputVariables(Engine *gazeControlEngine, InputVariable *oppAngle, InputVariable *oppConfidence, int id) {
@@ -155,6 +189,73 @@ void configOppPlayerInputVariables(Engine *gazeControlEngine, InputVariable *opp
 	oppConfidence->addTerm(new Trapezoid("lowConfidence", 0, 0, 0.4, 0.6958));
 	gazeControlEngine->addInputVariable(oppConfidence);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void configOppGoalVariables(Engine *navigationControlEngine, InputVariable *distanceToOppGoal, InputVariable *angleToOppGoal) {
+
+	distanceToOppGoal->setName("distanceToOppGoal");
+	distanceToOppGoal->setDescription("Distance to Opponent`s goal from main robot");
+	distanceToOppGoal->setEnabled(true);
+	distanceToOppGoal->setRange(0.000, 10.000);
+	distanceToOppGoal->setLockValueInRange(false);
+	distanceToOppGoal->addTerm(new Triangle("close", 0, 0.15, 0.3));
+	distanceToOppGoal->addTerm(new Trapezoid("closeModerate", 0.2, 0.4, 0.6, 0.8));
+	distanceToOppGoal->addTerm(new Trapezoid("moderate", 0.5, 0.8, 1.1, 1.4));
+	distanceToOppGoal->addTerm(new Trapezoid("moderateFar", 1, 1.5, 2, 2.5));
+	distanceToOppGoal->addTerm(new Trapezoid("far", 2, 2.5, 9.5, 9.5));
+	navigationControlEngine->addInputVariable(distanceToOppGoal);
+
+	angleToOppGoal->setName("angleToOppGoal");
+	angleToOppGoal->setDescription("Checks the angle of the opp`s goal towards the robot");
+	angleToOppGoal->setEnabled(true);
+	angleToOppGoal->setRange(-3.14, 3.14);
+	angleToOppGoal->setLockValueInRange(false);
+	angleToOppGoal->addTerm(new Triangle("littleToLeft", 0, 0.502, 1.06));
+	angleToOppGoal->addTerm(new Trapezoid("moderateToLeft",0.4854, 0.8403, 1.297, 1.617));
+	angleToOppGoal->addTerm(new Trapezoid("aLotToLeft",1.057, 1.767, 3.017, 3.297));
+	angleToOppGoal->addTerm(new Triangle("littleToRight", -1.06, -0.502, 0));
+	angleToOppGoal->addTerm(new Trapezoid("moderateToRight", -1.617, -1.297, -0.8403, -0.4854));
+	angleToOppGoal->addTerm(new Trapezoid("aLotToRight", -3.297, -3.017, -1.767, -1.057));
+	navigationControlEngine->addInputVariable(angleToOppGoal);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void configTeamGoalVariables(Engine *navigationControlEngine, InputVariable *closestToGoal, InputVariable *distanceToOurGoal, InputVariable *angleToOurGoal) {
+	closestToGoal->setName("closestToGoal");
+	closestToGoal->setDescription("Checks if controlled robot is the closest to team`s goal");
+	closestToGoal->setEnabled(true);
+	closestToGoal->setRange(0.000, 2.000);
+	closestToGoal->setLockValueInRange(false);
+	closestToGoal->addTerm(new Triangle("closestToGoal", 1, 1, 1));
+	navigationControlEngine->addInputVariable(closestToGoal);
+
+	distanceToOurGoal->setName("distanceToOurGoal");
+	distanceToOurGoal->setDescription("Distance to Opponent`s goal from main robot");
+	distanceToOurGoal->setEnabled(true);
+	distanceToOurGoal->setRange(0.000, 10.000);
+	distanceToOurGoal->setLockValueInRange(false);
+	distanceToOurGoal->addTerm(new Trapezoid("inGoal", 0, 0, 0.05, 0.05));
+	distanceToOurGoal->addTerm(new Triangle("close", 0, 0.15, 0.3));
+	distanceToOurGoal->addTerm(new Trapezoid("closeModerate", 0.2, 0.4, 0.6, 0.8));
+	distanceToOurGoal->addTerm(new Trapezoid("moderate", 0.5, 0.8, 1.1, 1.4));
+	distanceToOurGoal->addTerm(new Trapezoid("moderateFar", 1, 1.5, 2, 2.5));
+	distanceToOurGoal->addTerm(new Trapezoid("far", 2, 2.5, 9.5, 9.5));
+	navigationControlEngine->addInputVariable(distanceToOurGoal);
+
+	angleToOurGoal->setName("angleToOurGoal");
+	angleToOurGoal->setDescription("Checks the angle of team`s goal towards the robot");
+	angleToOurGoal->setEnabled(true);
+	angleToOurGoal->setRange(-3.14, 3.14);
+	angleToOurGoal->setLockValueInRange(false);
+	angleToOurGoal->addTerm(new Triangle("littleToLeft", 0, 0.502, 1.06));
+	angleToOurGoal->addTerm(new Trapezoid("moderateToLeft",0.4854, 0.8403, 1.297, 1.617));
+	angleToOurGoal->addTerm(new Trapezoid("aLotToLeft",1.057, 1.767, 3.017, 3.297));
+	angleToOurGoal->addTerm(new Triangle("littleToRight", -1.06, -0.502, 0));
+	angleToOurGoal->addTerm(new Trapezoid("moderateToRight", -1.617, -1.297, -0.8403, -0.4854));
+	angleToOurGoal->addTerm(new Trapezoid("aLotToRight", -3.297, -3.017, -1.767, -1.057));
+	navigationControlEngine->addInputVariable(angleToOurGoal);
+
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void configPanAngleOutputVariable(Engine *gazeControlEngine, OutputVariable *panAngle) {
 	panAngle->setName("panAngle");
@@ -178,6 +279,39 @@ void configPanAngleOutputVariable(Engine *gazeControlEngine, OutputVariable *pan
 	panAngle->addTerm(new Trapezoid("panToBallModerateToRight", -0.7992, -0.6842, -0.4842, -0.3362));
 	panAngle->addTerm(new Trapezoid("panToBallALotToRight", -0.9975, -0.8605, -0.7355, -0.5855));
 	gazeControlEngine->addOutputVariable(panAngle);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void configNavigationOutputVariables(Engine *navigationControlEngine, OutputVariable *velocityX, OutputVariable *velocityTheta) {
+	velocityX->setName("velocityX");
+	velocityX->setDescription("Sets robot`s x-axis velocity (relative to robot)");
+	velocityX->setEnabled(true);
+	velocityX->setRange(-1.000, 1.000);
+	velocityX->setLockValueInRange(false);
+	velocityX->setAggregation(new Maximum);
+	velocityX->setDefuzzifier(new Centroid(100));
+	velocityX->setDefaultValue(0);
+	velocityX->addTerm(new Triangle("slowForward", 0, 0.1, 0.2));
+	velocityX->addTerm(new Triangle("slowModerateForward", 0.1, 0.2, 0.3));
+	velocityX->addTerm(new Trapezoid("moderateForward", 0.2, 0.3, 0.4, 0.5));
+	velocityX->addTerm(new Trapezoid("moderateFastForward", 0.4, 0.5, 0.7, 0.8));
+	velocityX->addTerm(new Triangle("fastForward", 0.7, 0.85, 1.0));
+	navigationControlEngine->addOutputVariable(velocityX);
+
+	velocityTheta->setName("velocityTheta");
+	velocityTheta->setDescription("Sets robot`s z-rotation velocity (relative to robot)");
+	velocityTheta->setEnabled(true);
+	velocityTheta->setRange(-1.000, 1.000);
+	velocityTheta->setLockValueInRange(false);
+	velocityTheta->setAggregation(new Maximum);
+	velocityTheta->setDefuzzifier(new Centroid(100));
+	velocityTheta->setDefaultValue(0);
+	velocityTheta->addTerm(new Trapezoid("littleToLeft", 0, 0.1, 0.2, 0.3));
+	velocityTheta->addTerm(new Trapezoid("moderateToLeft", 0.15, 0.35, 0.55, 0.75));
+	velocityTheta->addTerm(new Trapezoid("aLotToLeft", 0.5, 0.8, 0.9, 1.0));
+	velocityTheta->addTerm(new Trapezoid("littleToRight", -0.3, -0.2, -0.1, 0));
+	velocityTheta->addTerm(new Trapezoid("moderateToRight", -0.75, -0.55, -0.35, -0.15));
+	velocityTheta->addTerm(new Trapezoid("aLotToRight", -1.0, -0.9, -0.8, -0.5));
+	navigationControlEngine->addOutputVariable(velocityTheta);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void configPanRules(Engine *gazeControlEngine, RuleBlock *gazeControlRuleBlock) {
@@ -207,6 +341,60 @@ void configPanRules(Engine *gazeControlEngine, RuleBlock *gazeControlRuleBlock) 
 	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is moderateToLeft then panAngle is panModerateToLeft", gazeControlEngine));
 	gazeControlRuleBlock->addRule(Rule::parse("if oppConfidence3 is lowConfidence and oppRobotAngle3 is moderateToRight then panAngle is panModerateToRight", gazeControlEngine));
 	gazeControlEngine->addRuleBlock(gazeControlRuleBlock);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+void configNavigationRules(Engine *navigationControlEngine, RuleBlock *navigationControlRuleBlock) {
+	navigationControlRuleBlock->setName("navigationControlRuleBlock");
+	navigationControlRuleBlock->setDescription("");
+	navigationControlRuleBlock->setEnabled(true);
+	navigationControlRuleBlock->setConjunction(new Minimum);
+	navigationControlRuleBlock->setDisjunction(new Maximum);
+	navigationControlRuleBlock->setImplication(new AlgebraicProduct);
+	navigationControlRuleBlock->setActivation(new General);
+
+	navigationControlRuleBlock->addRule(Rule::parse("if BallAngle is littleToLeft and teamHaveBall is not definetelyHaveBall and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityTheta is littleToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if BallAngle is littleToRight and teamHaveBall is not definetelyHaveBall and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityTheta is littleToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if BallAngle is moderateToLeft and teamHaveBall is not definetelyHaveBall and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityTheta is moderateToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if BallAngle is moderateToRight and teamHaveBall is not definetelyHaveBall and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityTheta is moderateToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if BallAngle is aLotToLeft and teamHaveBall is not definetelyHaveBall and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityTheta is aLotToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if BallAngle is aLotToRight and teamHaveBall is not definetelyHaveBall and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityTheta is aLotToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and distanceBall is close and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityX is slowForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and distanceBall is closeModerate and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityX is slowModerateForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and distanceBall is moderate and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityX is moderateForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and distanceBall is moderateFar and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityX is moderateFastForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and distanceBall is far and closestToBall is closestToBall and closestToGoal is not closestToGoal then velocityX is fastForward", navigationControlEngine));
+
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and angleToOppGoal is littleToLeft then velocityTheta is littleToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and angleToOppGoal is littleToRight then velocityTheta is littleToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and angleToOppGoal is moderateToLeft then velocityTheta is moderateToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and angleToOppGoal is moderateToRight then velocityTheta is moderateToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and angleToOppGoal is aLotToLeft then velocityTheta is aLotToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and angleToOppGoal is aLotToRight then velocityTheta is aLotToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and distanceToOppGoal is close then velocityX is slowForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and distanceToOppGoal is closeModerate then velocityX is slowModerateForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and distanceToOppGoal is moderate then velocityX is moderateForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and distanceToOppGoal is moderateFar then velocityX is moderateFastForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is definetelyHaveBall and distanceToOppGoal is far then velocityX is fastForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is not inGoal and angleToOurGoal is littleToLeft then velocityTheta is littleToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is not inGoal and angleToOurGoal is littleToRight then velocityTheta is littleToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is not inGoal and angleToOurGoal is moderateToLeft then velocityTheta is moderateToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is not inGoal and angleToOurGoal is moderateToRight then velocityTheta is moderateToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is not inGoal and angleToOurGoal is aLotToLeft then velocityTheta is aLotToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is not inGoal and angleToOurGoal is aLotToRight then velocityTheta is aLotToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is inGoal and angleToOurGoal is littleToLeft then velocityTheta is aLotToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is inGoal and angleToOurGoal is littleToRight then velocityTheta is aLotToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is inGoal and angleToOurGoal is moderateToLeft then velocityTheta is moderateToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is inGoal and angleToOurGoal is moderateToRight then velocityTheta is moderateToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is inGoal and angleToOurGoal is aLotToLeft then velocityTheta is littleToLeft", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is inGoal and angleToOurGoal is aLotToRight then velocityTheta is littleToRight", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is close then velocityX is slowForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is closeModerate then velocityX is slowModerateForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is moderate then velocityX is moderateForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is moderateFar then velocityX is moderateFastForward", navigationControlEngine));
+	navigationControlRuleBlock->addRule(Rule::parse("if teamHaveBall is not definetelyHaveBall and closestToGoal is closestToGoal and distanceToOurGoal is far then velocityX is fastForward", navigationControlEngine));
+
+
+	navigationControlEngine->addRuleBlock(navigationControlRuleBlock);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void resetOccupancyGrid(float m[][MAP_Y]) {
@@ -389,7 +577,7 @@ double calculateAngleForOppRobotsFuzzy(const boost::tuple<simxFloat, simxFloat, 
 	return calculateAngleForFuzzy(angle, z_angle);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void processFuzzy(Engine *gazeControlEngine, InputVariable *ballDistance, InputVariable *ballAngle, InputVariable *ballConfidence, InputVariable* opp1Confidence, InputVariable* opp1Angle,InputVariable* opp2Confidence, InputVariable* opp2Angle,InputVariable* opp3Confidence, InputVariable* opp3Angle, OutputVariable *panAngle, const boost::tuple<simxFloat, simxFloat, simxFloat>& robot_coord,  const boost::tuple<simxFloat, simxFloat, simxFloat> robot_orient, simxFloat* ball_coord, simxFloat ball_confidence, const std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& opp_robots_coords, const std::vector<simxFloat> opp_robots_confidence) {
+void processFuzzy(Engine *gazeControlEngine, InputVariable *ballReferenceForGazeControl, InputVariable *ballAngle, InputVariable *ballConfidence, InputVariable* opp1Confidence, InputVariable* opp1Angle,InputVariable* opp2Confidence, InputVariable* opp2Angle,InputVariable* opp3Confidence, InputVariable* opp3Angle, OutputVariable *panAngle, const boost::tuple<simxFloat, simxFloat, simxFloat>& robot_coord,  const boost::tuple<simxFloat, simxFloat, simxFloat> robot_orient, simxFloat* ball_coord, simxFloat ball_confidence, const std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>>& opp_robots_coords, const std::vector<simxFloat> opp_robots_confidence) {
 	string status;
 	if(not gazeControlEngine->isReady(&status))
 		throw Exception("[gazeControlEngine error] gazeControlEngine is not ready:n" + status, FL_AT);
@@ -403,7 +591,7 @@ void processFuzzy(Engine *gazeControlEngine, InputVariable *ballDistance, InputV
 	double distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
 	double angle = calculateAngle(diffX, diffY, distance);
 
-	ballDistance->setValue(distance);
+	ballReferenceForGazeControl->setValue(distance);
 	ballAngle->setValue(calculateAngleForFuzzy(angle, z_angle));
 	ballConfidence->setValue(ball_confidence);
 
@@ -645,7 +833,7 @@ int main(int argc, char* argv[]) {
 
     Engine *gazeControlEngine = new Engine;
     InputVariable *ballAngle = new InputVariable;
-    InputVariable *ballDistance = new InputVariable;
+    InputVariable *ballReferenceForGazeControl = new InputVariable;
     InputVariable *ballConfidence = new InputVariable;
     InputVariable *opp1Confidence = new InputVariable;
     InputVariable *opp1Angle = new InputVariable;
@@ -655,13 +843,35 @@ int main(int argc, char* argv[]) {
     InputVariable *opp3Angle = new InputVariable;
     OutputVariable *panAngle = new OutputVariable;
     RuleBlock *gazeControlRuleBlock = new RuleBlock;
-    startEngine(gazeControlEngine);
-    configBallInputVariables(gazeControlEngine, ballDistance, ballAngle, ballConfidence);
+
+		Engine *navigationControlEngine = new Engine;
+		//we already have distanceBall
+		InputVariable *distanceBall = new InputVariable;
+		InputVariable *teamHaveBall = new InputVariable;
+		InputVariable *closestToBall = new InputVariable;
+		InputVariable *distanceToOppGoal = new InputVariable;
+		InputVariable *angleToOppGoal = new InputVariable;
+		InputVariable *closestToGoal = new InputVariable;
+		InputVariable *distanceToOurGoal = new InputVariable;
+		InputVariable *angleToOurGoal = new InputVariable;
+		OutputVariable *velocityX = new OutputVariable;
+		OutputVariable *velocityTheta = new OutputVariable;
+		RuleBlock *navigationControlRuleBlock = new RuleBlock;
+
+    startGazeControlEngine(gazeControlEngine);
+		startNavigationControlEngine(navigationControlEngine);
+
+    configBallInputVariables(gazeControlEngine, navigationControlEngine, ballReferenceForGazeControl, ballAngle, ballConfidence, distanceBall, teamHaveBall, closestToBall);
     configOppPlayerInputVariables(gazeControlEngine, opp1Angle, opp1Confidence, 1);
     configOppPlayerInputVariables(gazeControlEngine, opp2Angle, opp2Confidence, 2);
     configOppPlayerInputVariables(gazeControlEngine, opp3Angle, opp3Confidence, 3);
     configPanAngleOutputVariable(gazeControlEngine, panAngle);
     configPanRules(gazeControlEngine, gazeControlRuleBlock);
+		configOppGoalVariables(navigationControlEngine, distanceToOppGoal, angleToOppGoal);
+		configTeamGoalVariables(navigationControlEngine, closestToGoal, distanceToOurGoal, angleToOurGoal);
+		configNavigationOutputVariables(navigationControlEngine, velocityX, velocityTheta);
+		configNavigationRules(navigationControlEngine, navigationControlRuleBlock);
+
 
     generateNormalDistributionRange();
     generateNormalDistributionFOV();
@@ -864,7 +1074,7 @@ int main(int argc, char* argv[]) {
         }
 
         for(int i = 0; i < team_robots_coords.size(); i++) {
-          processFuzzy(gazeControlEngine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(i), team_robots_orient.at(i), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+          processFuzzy(gazeControlEngine, ballReferenceForGazeControl, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(i), team_robots_orient.at(i), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
           double speed = panAngle->getValue();
           cout << "calculated speed " << i << ": " << speed << endl;
           valid = false;
@@ -883,7 +1093,7 @@ int main(int argc, char* argv[]) {
           boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
           opp_robots_confidence.push_back(occupancy[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
         }
-        processFuzzy(gazeControlEngine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(0), team_robots_orient.at(0), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+        processFuzzy(gazeControlEngine, ballReferenceForGazeControl, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(0), team_robots_orient.at(0), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         double speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
         valid = false;
@@ -900,7 +1110,7 @@ int main(int argc, char* argv[]) {
           boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
           opp_robots_confidence.push_back(occupancy2[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
         }
-        processFuzzy(gazeControlEngine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(1), team_robots_orient.at(1), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+        processFuzzy(gazeControlEngine, ballReferenceForGazeControl, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(1), team_robots_orient.at(1), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
         valid = false;
@@ -917,7 +1127,7 @@ int main(int argc, char* argv[]) {
           boost::tuple<simxFloat, simxFloat, simxFloat> coord = opp_robots_coords.at(i);
           opp_robots_confidence.push_back(occupancy3[convertX(boost::get<0>(coord))][convertY(boost::get<1>(coord))]);
         }
-        processFuzzy(gazeControlEngine, ballDistance, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(2), team_robots_orient.at(2), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
+        processFuzzy(gazeControlEngine, ballReferenceForGazeControl, ballAngle, ballConfidence, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, opp1Confidence, opp1Angle, panAngle, team_robots_coords.at(2), team_robots_orient.at(2), ball_coord, ball_confidence, opp_robots_coords, opp_robots_confidence);
         speed = panAngle->getValue();
         cout << "calculated speed "  << ": " << speed << endl;
         valid = false;
@@ -928,6 +1138,22 @@ int main(int argc, char* argv[]) {
         }
       }
 			*/
+			string status;
+			if(not navigationControlEngine->isReady(&status))
+				throw Exception("[gazeControlEngine error] gazeControlEngine is not ready:n" + status, FL_AT);
+
+			ballAngle->setValue(-2.5);
+			teamHaveBall->setValue(0);
+			distanceBall->setValue(10);
+			closestToBall->setValue(1);
+			distanceToOppGoal->setValue(5);
+			angleToOppGoal->setValue(0.5);
+			closestToGoal->setValue(0);
+			distanceToOurGoal->setValue(0.0);
+			angleToOurGoal->setValue(2);
+			navigationControlEngine->process();
+			cout << "velocityX: " << velocityX->getValue() << endl;
+			cout << "velocityTheta: " << velocityTheta->getValue() << endl;
     }
 
     cout << "About to End" << endl;
