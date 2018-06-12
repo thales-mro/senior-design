@@ -46,8 +46,10 @@ Communication::Communication(simxInt clientID) {
 		simxGetObjectHandle(clientID, heads.at(i).c_str(), &headsIds[i], simx_opmode_oneshot_wait);
 		simxGetObjectHandle(clientID, robots.at(i).c_str(), &robotsIds[i], simx_opmode_oneshot_wait);
 	}*/
-
-	//updateVariables();
+	simxGetObjectHandle(clientID, ourGoalName.c_str(), &ourGoalId, simx_opmode_oneshot_wait);
+	cout << ourGoalName << " " << ourGoalId << endl;
+	simxGetObjectHandle(clientID, oppGoalName.c_str(), &oppGoalId, simx_opmode_oneshot_wait);
+	cout << oppGoalName << " " << oppGoalId << endl;
 
 }
 
@@ -65,7 +67,7 @@ void Communication::testConnectionVREP() {
 }
 
 void Communication::testConnectionChoregraphe() {
-	AL::ALMotionProxy m("127.0.0.1:36355", 9559);
+	AL::ALMotionProxy m("127.0.0.1:39501", 9559);
 	cout << "Entered Choregraphe routine" << endl;
 	std::vector<float> listAngles;
 
@@ -106,7 +108,7 @@ void Communication::testConnectionChoregraphe() {
 
 
 void Communication::updateJointsPositions() {
-	AL::ALMotionProxy m("127.0.0.1:36355", 9559);
+	AL::ALMotionProxy m("127.0.0.1:39501", 9559);
 	cout << "Entered Choregraphe routine" << endl;
 	std::vector<float> listAngles;
 	motion.moveInit();
@@ -315,4 +317,25 @@ std::vector<simxFloat> Communication::getRobot2HeadOrientation() {
 			robot2HeadOrientation.push_back(coords);
 	}
 	return robot2HeadOrientation;
+}
+
+std::vector<simxFloat> Communication::getOurGoalCoords() {
+	simxGetObjectPosition(clientID, ourGoalId, -1, aux, simx_opmode_oneshot_wait);
+	if(!(aux[0] != aux[0] || aux[1] != aux[1] || aux[2] != aux[2])) {
+		ourGoalPosition.clear();
+		for(simxFloat coords : aux)
+			ourGoalPosition.push_back(coords);
+	}
+	cout << "aaaa " << aux[0] << endl;
+	return ourGoalPosition;
+}
+
+std::vector<simxFloat> Communication::getOppGoalCoords() {
+	simxGetObjectPosition(clientID, oppGoalId, -1, aux, simx_opmode_oneshot_wait);
+	if(!(aux[0] != aux[0] || aux[1] != aux[1] || aux[2] != aux[2])) {
+		oppGoalPosition.clear();
+		for(simxFloat coords : aux)
+			oppGoalPosition.push_back(coords);
+	}
+	return oppGoalPosition;
 }

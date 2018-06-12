@@ -799,7 +799,7 @@ int main(int argc, char* argv[]) {
     * - port on which NAOqi is listening, by default 9559
     */
 
-    AL::ALMotionProxy motion("127.0.0.1:36355", 9559);
+    AL::ALMotionProxy motion("127.0.0.1:39501", 9559);
 		//AL::
 
     std::vector<float> listAngles;
@@ -896,6 +896,20 @@ int main(int argc, char* argv[]) {
     int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
     resetMap(map);
 
+		std::vector<simxFloat> auxCoord;
+		auxCoord = comm.getOurGoalCoords();
+		goal_left_coord[0] = auxCoord.at(0);
+		goal_left_coord[1] = auxCoord.at(1);
+		auxCoord.clear();
+		auxCoord = comm.getOppGoalCoords();
+		goal_right_coord[0] = auxCoord.at(0);
+		goal_right_coord[1] = auxCoord.at(1);
+		auxCoord.clear();
+		auxCoord = comm.getBallCoords();
+		ball_coord[0] = auxCoord.at(0);
+		ball_coord[1] = auxCoord.at(1);
+
+
     /*team_robots_joints.push_back("HeadYaw");
     team_robots_joints.push_back("HeadYaw#0");
     team_robots_joints.push_back("HeadYaw#1");
@@ -976,9 +990,14 @@ int main(int argc, char* argv[]) {
 
     //std::cout.precision(2);
     bool valid;
-
+		bool first = true;
     while(true) {
       sleep(1);
+			if(first) {
+				sleep(30);
+				first = false;
+
+			}
       team_robots_coords.clear();
       team_robots_orient.clear();
       team_robots_head_orient.clear();
@@ -1142,18 +1161,69 @@ int main(int argc, char* argv[]) {
 			if(not navigationControlEngine->isReady(&status))
 				throw Exception("[gazeControlEngine error] gazeControlEngine is not ready:n" + status, FL_AT);
 
-			ballAngle->setValue(-2.5);
+			auxCoord.clear();
+			auxCoord = comm.getBallCoords();
+			ball_coord[0] = auxCoord.at(0);
+			ball_coord[1] = auxCoord.at(1);
+
+			//init fuzzy variables
+			simxFloat x_coord = boost::get<0>(team_robots_coords.at(0));
+			simxFloat y_coord = boost::get<1>(team_robots_coords.at(0));
+			simxFloat z_angle = boost::get<2>(team_robots_orient.at(0));
+
+			//cout << "Values: " << x_coord << " " << y_coord << " "<< z_angle << endl;
+			double diffX = ball_coord[0] - x_coord;
+			double diffY = ball_coord[1] - y_coord;
+			double distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
+			double angle = calculateAngle(diffX, diffY, distance);
+			ballReferenceForGazeControl->setValue(distance);
+			double angleForFuzzy = calculateAngleForFuzzy(angle, z_angle);
+			//cout << "ballAngleForFuzzy " << angleForFuzzy << endl;
+			ballAngle->setValue(calculateAngleForFuzzy(angle, z_angle));
+			//cout << "distanceToBall " << distance << endl;
+
+			distanceBall->setValue(distance);
+
+			diffX = goal_left_coord[0] - x_coord;
+			diffY = goal_left_coord[1] - y_coord;
+			distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
+			angle = calculateAngle(diffX, diffY, distance);
+			angleForFuzzy = calculateAngleForFuzzy(angle, z_angle);
+			//cout << "DistanceToOurGoal " << distance << "angleToOurGoal " << angleForFuzzy << endl;
+
+			distanceToOurGoal->setValue(distance);
+			angleToOurGoal->setValue(angleForFuzzy);
+
+			diffX = goal_right_coord[0] - x_coord;
+			diffY = goal_right_coord[1] - y_coord;
+			distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
+			angle = calculateAngle(diffX, diffY, distance);
+			angleForFuzzy = calculateAngleForFuzzy(angle, z_angle);
+			//cout << "DistanceToOppGoal " << distance << "angleToOppGoal " << angleForFuzzy << endl;
+
+			distanceToOppGoal->setValue(distance);
+			angleToOppGoal->setValue(angleForFuzzy);
+
+			cout << "Fuzzy Variables set:" << endl;
+			//cout << "Distance to ball: " << distanceBall->getValue() << " Angle To Ball: " << ballAngle->getValue() << endl;
+			cout << "Distance to Our Goal: " << distanceToOurGoal->getValue() << " Angle To Our Goal: " << angleToOurGoal->getValue() << endl;
+			//cout << "Distance to Opp Goal: " << distanceToOppGoal->getValue() << " Angle To Opp Goal: " << angleToOppGoal->getValue() << endl;
+
+			//ballAngle->setValue(-2.5);
 			teamHaveBall->setValue(0);
-			distanceBall->setValue(10);
-			closestToBall->setValue(1);
-			distanceToOppGoal->setValue(5);
-			angleToOppGoal->setValue(0.5);
-			closestToGoal->setValue(0);
-			distanceToOurGoal->setValue(0.0);
-			angleToOurGoal->setValue(2);
+
+			//distanceBall->setValue(10);
+			closestToBall->setValue(0);
+			//distanceToOppGoal->setValue(5);
+			//angleToOppGoal->setValue(0.5);
+			closestToGoal->setValue(1);
+			//distanceToOurGoal->setValue(0.0);
+			//angleToOurGoal->setValue(2);
 			navigationControlEngine->process();
 			cout << "velocityX: " << velocityX->getValue() << endl;
 			cout << "velocityTheta: " << velocityTheta->getValue() << endl;
+
+			motion.moveToward(velocityX->getValue(), 0, velocityTheta->getValue());
     }
 
     cout << "About to End" << endl;
