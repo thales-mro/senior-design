@@ -233,8 +233,8 @@ void configTeamGoalVariables(Engine *navigationControlEngine, InputVariable *clo
 	distanceToOurGoal->setEnabled(true);
 	distanceToOurGoal->setRange(0.000, 10.000);
 	distanceToOurGoal->setLockValueInRange(false);
-	distanceToOurGoal->addTerm(new Trapezoid("inGoal", 0, 0, 0.05, 0.05));
-	distanceToOurGoal->addTerm(new Triangle("close", 0, 0.15, 0.3));
+	distanceToOurGoal->addTerm(new Trapezoid("inGoal", 0, 0, 0.1, 0.1));
+	distanceToOurGoal->addTerm(new Triangle("close", 0.1, 0.15, 0.3));
 	distanceToOurGoal->addTerm(new Trapezoid("closeModerate", 0.2, 0.4, 0.6, 0.8));
 	distanceToOurGoal->addTerm(new Trapezoid("moderate", 0.5, 0.8, 1.1, 1.4));
 	distanceToOurGoal->addTerm(new Trapezoid("moderateFar", 1, 1.5, 2, 2.5));
@@ -295,6 +295,11 @@ void configNavigationOutputVariables(Engine *navigationControlEngine, OutputVari
 	velocityX->addTerm(new Trapezoid("moderateForward", 0.2, 0.3, 0.4, 0.5));
 	velocityX->addTerm(new Trapezoid("moderateFastForward", 0.4, 0.5, 0.7, 0.8));
 	velocityX->addTerm(new Triangle("fastForward", 0.7, 0.85, 1.0));
+	/*velocityX->addTerm(new Triangle("slowForward", 0, 0.2, 0.4));
+	velocityX->addTerm(new Triangle("slowModerateForward", 0.2, 0.4, 0.6));
+	velocityX->addTerm(new Trapezoid("moderateForward", 0.4, 0.5, 0.7, 0.8));
+	velocityX->addTerm(new Trapezoid("moderateFastForward", 0.5, 0.6, 0.8, 1.0));
+	velocityX->addTerm(new Triangle("fastForward", 0.7, 0.85, 1.0));*/
 	navigationControlEngine->addOutputVariable(velocityX);
 
 	velocityTheta->setName("velocityTheta");
@@ -1213,10 +1218,10 @@ int main(int argc, char* argv[]) {
 			teamHaveBall->setValue(0);
 
 			//distanceBall->setValue(10);
-			closestToBall->setValue(0);
+			closestToBall->setValue(1);
 			//distanceToOppGoal->setValue(5);
 			//angleToOppGoal->setValue(0.5);
-			closestToGoal->setValue(1);
+			closestToGoal->setValue(0);
 			//distanceToOurGoal->setValue(0.0);
 			//angleToOurGoal->setValue(2);
 			navigationControlEngine->process();

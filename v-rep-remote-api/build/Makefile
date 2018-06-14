@@ -190,6 +190,33 @@ src/Simulator.cpp.s:
 	$(MAKE) -f CMakeFiles/robot2.dir/build.make CMakeFiles/robot2.dir/src/Simulator.cpp.s
 .PHONY : src/Simulator.cpp.s
 
+src/teste.o: src/teste.cpp.o
+
+.PHONY : src/teste.o
+
+# target to build an object file
+src/teste.cpp.o:
+	$(MAKE) -f CMakeFiles/robot2.dir/build.make CMakeFiles/robot2.dir/src/teste.cpp.o
+.PHONY : src/teste.cpp.o
+
+src/teste.i: src/teste.cpp.i
+
+.PHONY : src/teste.i
+
+# target to preprocess a source file
+src/teste.cpp.i:
+	$(MAKE) -f CMakeFiles/robot2.dir/build.make CMakeFiles/robot2.dir/src/teste.cpp.i
+.PHONY : src/teste.cpp.i
+
+src/teste.s: src/teste.cpp.s
+
+.PHONY : src/teste.s
+
+# target to generate assembly for a file
+src/teste.cpp.s:
+	$(MAKE) -f CMakeFiles/robot2.dir/build.make CMakeFiles/robot2.dir/src/teste.cpp.s
+.PHONY : src/teste.cpp.s
+
 src/v_rep/extApi.o: src/v_rep/extApi.c.o
 
 .PHONY : src/v_rep/extApi.o
@@ -260,6 +287,9 @@ help:
 	@echo "... src/Simulator.o"
 	@echo "... src/Simulator.i"
 	@echo "... src/Simulator.s"
+	@echo "... src/teste.o"
+	@echo "... src/teste.i"
+	@echo "... src/teste.s"
 	@echo "... src/v_rep/extApi.o"
 	@echo "... src/v_rep/extApi.i"
 	@echo "... src/v_rep/extApi.s"

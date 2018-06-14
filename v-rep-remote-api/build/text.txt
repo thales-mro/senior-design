@@ -1,0 +1,5 @@
+[ 50%] Built target remote_api
+[ 66%] Building CXX object CMakeFiles/robot2.dir/main.cpp.o
+CMakeFiles/robot2.dir/build.make:62: recipe for target 'CMakeFiles/robot2.dir/main.cpp.o' failed
+CMakeFiles/Makefile2:67: recipe for target 'CMakeFiles/robot2.dir/all' failed
+Makefile:127: recipe for target 'all' failed

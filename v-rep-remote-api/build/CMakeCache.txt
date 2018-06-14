@@ -14,12 +14,239 @@
 # EXTERNAL cache entries
 ########################
 
+//Path to a library.
+ALCOMMON_DEBUG_LIBRARY:FILEPATH=ALCOMMON_DEBUG_LIBRARY-NOTFOUND
+
+//The directory containing a CMake configuration file for ALCOMMON.
+ALCOMMON_DIR:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/share/cmake/alcommon
+
+ALCOMMON_INCLUDE_DIRS:STRING=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include;
+
+//Path to a library.
+ALCOMMON_LIBRARY:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libalcommon.so
+
+//Path to a library.
+ALERROR_DEBUG_LIBRARY:FILEPATH=ALERROR_DEBUG_LIBRARY-NOTFOUND
+
+//The directory containing a CMake configuration file for ALERROR.
+ALERROR_DIR:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/share/cmake/alerror
+
+ALERROR_INCLUDE_DIRS:STRING=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include;
+
+//Path to a library.
+ALERROR_LIBRARY:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libalerror.so
+
+//Path to a library.
+ALVALUE_DEBUG_LIBRARY:FILEPATH=ALVALUE_DEBUG_LIBRARY-NOTFOUND
+
+//The directory containing a CMake configuration file for ALVALUE.
+ALVALUE_DIR:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/share/cmake/alvalue
+
+ALVALUE_INCLUDE_DIRS:STRING=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include;
+
+//Path to a library.
+ALVALUE_LIBRARY:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libalvalue.so
+
+//Cleared.
+BOOST_CHRONO_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_CHRONO.
+BOOST_CHRONO_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_CHRONO_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_CHRONO_EXECUTABLE_DEBUG:STRING=
+
+//Cleared.
+BOOST_DATE_TIME_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_DATE_TIME.
+BOOST_DATE_TIME_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_DATE_TIME_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_DATE_TIME_EXECUTABLE_DEBUG:STRING=
+
+//The directory containing a CMake configuration file for BOOST.
+BOOST_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_FILESYSTEM_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_FILESYSTEM.
+BOOST_FILESYSTEM_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_FILESYSTEM_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_FILESYSTEM_EXECUTABLE_DEBUG:STRING=
+
+//Cleared.
+BOOST_LOCALE_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_LOCALE.
+BOOST_LOCALE_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_LOCALE_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_LOCALE_EXECUTABLE_DEBUG:STRING=
+
+//Cleared.
+BOOST_PROGRAM_OPTIONS_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_PROGRAM_OPTIONS.
+BOOST_PROGRAM_OPTIONS_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_PROGRAM_OPTIONS_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_PROGRAM_OPTIONS_EXECUTABLE_DEBUG:STRING=
+
+//Cleared.
+BOOST_REGEX_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_REGEX.
+BOOST_REGEX_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_REGEX_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_REGEX_EXECUTABLE_DEBUG:STRING=
+
+//Cleared.
+BOOST_SIGNALS_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_SIGNALS.
+BOOST_SIGNALS_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_SIGNALS_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_SIGNALS_EXECUTABLE_DEBUG:STRING=
+
+//Cleared.
+BOOST_SYSTEM_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_SYSTEM.
+BOOST_SYSTEM_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_SYSTEM_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_SYSTEM_EXECUTABLE_DEBUG:STRING=
+
+//Cleared.
+BOOST_THREAD_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for BOOST_THREAD.
+BOOST_THREAD_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+BOOST_THREAD_EXECUTABLE:STRING=
+
+//Cleared.
+BOOST_THREAD_EXECUTABLE_DEBUG:STRING=
+
+//The threading library used by boost-thread
+BOOST_THREAD_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libpthread.so
+
+//Boost atomic library (debug)
+Boost_ATOMIC_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_atomic.so
+
+//Boost atomic library (release)
+Boost_ATOMIC_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_atomic.so
+
+//Boost chrono library (debug)
+Boost_CHRONO_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_chrono.so
+
+//Boost chrono library (release)
+Boost_CHRONO_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_chrono.so
+
+//Boost date_time library (debug)
+Boost_DATE_TIME_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_date_time.so
+
+//Boost date_time library (release)
+Boost_DATE_TIME_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_date_time.so
+
+//Cleared.
+Boost_DEFINITIONS:STRING=
+
+//Cleared.
+Boost_EXECUTABLE:STRING=
+
+//Cleared.
+Boost_EXECUTABLE_DEBUG:STRING=
+
+//Boost filesystem library (debug)
+Boost_FILESYSTEM_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_filesystem.so
+
+//Boost filesystem library (release)
+Boost_FILESYSTEM_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_filesystem.so
+
+//Path to a file.
+Boost_INCLUDE_DIR:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+
+//Cleared.
+Boost_INCLUDE_DIRS:STRING=
+
+//Cleared.
+Boost_LIBRARIES:STRING=
+
+//Boost library directory DEBUG
+Boost_LIBRARY_DIR_DEBUG:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib
+
+//Boost library directory RELEASE
+Boost_LIBRARY_DIR_RELEASE:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib
+
+//Boost locale library (debug)
+Boost_LOCALE_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_locale.so
+
+//Boost locale library (release)
+Boost_LOCALE_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_locale.so
+
+//Boost program_options library (debug)
+Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_program_options.so
+
+//Boost program_options library (release)
+Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_program_options.so
+
+//Boost regex library (debug)
+Boost_REGEX_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_regex.so
+
+//Boost regex library (release)
+Boost_REGEX_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_regex.so
+
+//Boost signals library (debug)
+Boost_SIGNALS_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_signals.so
+
+//Boost signals library (release)
+Boost_SIGNALS_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_signals.so
+
+//Boost system library (debug)
+Boost_SYSTEM_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_system.so
+
+//Boost system library (release)
+Boost_SYSTEM_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_system.so
+
+//Boost thread library (debug)
+Boost_THREAD_LIBRARY_DEBUG:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_thread.so
+
+//Boost thread library (release)
+Boost_THREAD_LIBRARY_RELEASE:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_thread.so
+
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/ar
-
-//Choose the type of build, options are: None(CMAKE_CXX_FLAGS or
-// CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.
-CMAKE_BUILD_TYPE:STRING=
 
 //Enable/Disable color output during build.
 CMAKE_COLOR_MAKEFILE:BOOL=ON
@@ -165,11 +392,126 @@ CMAKE_STRIP:FILEPATH=/usr/bin/strip
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Cleared.
+DL_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for DL.
+DL_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+DL_EXECUTABLE:STRING=
+
+//Cleared.
+DL_EXECUTABLE_DEBUG:STRING=
+
+//Cleared.
+PTHREAD_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for PTHREAD.
+PTHREAD_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+PTHREAD_EXECUTABLE:STRING=
+
+//Cleared.
+PTHREAD_EXECUTABLE_DEBUG:STRING=
+
+//Path to a program.
+PYTHON2_EXECUTABLE:FILEPATH=/usr/bin/python2
+
+QIBUILD_PYTHON_PATH:STRING=/home/thales/.local/lib/python2.7/site-packages
+
+//qibuild version
+QIBUILD_VERSION:STRING=3.11.18
+
+//Path to a library.
+QIMESSAGING_DEBUG_LIBRARY:FILEPATH=QIMESSAGING_DEBUG_LIBRARY-NOTFOUND
+
+//The directory containing a CMake configuration file for QIMESSAGING.
+QIMESSAGING_DIR:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/share/cmake/qimessaging
+
+QIMESSAGING_INCLUDE_DIRS:STRING=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include;
+
+//Path to a library.
+QIMESSAGING_LIBRARY:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libqimessaging.so
+
+//Path to a library.
+QITYPE_DEBUG_LIBRARY:FILEPATH=QITYPE_DEBUG_LIBRARY-NOTFOUND
+
+//The directory containing a CMake configuration file for QITYPE.
+QITYPE_DIR:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/share/cmake/qitype
+
+QITYPE_INCLUDE_DIRS:STRING=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include;
+
+//Path to a library.
+QITYPE_LIBRARY:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libqitype.so
+
+//Path to a library.
+QI_DEBUG_LIBRARY:FILEPATH=QI_DEBUG_LIBRARY-NOTFOUND
+
+//The directory containing a CMake configuration file for QI.
+QI_DIR:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/share/cmake/qi
+
+//Force 32bits build even when on 64bits
+QI_FORCE_32_BITS:BOOL=OFF
+
+QI_INCLUDE_DIRS:STRING=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include;
+
+//Path to a library.
+QI_LIBRARY:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libqi.so
+
+//Enable code coverage
+QI_WITH_COVERAGE:BOOL=OFF
+
+//Default is to follow CMAKE_BUILD_TYPE
+QI_WITH_DEBUG_INFO:BOOL=ON
+
+//triggers building of nightly tests
+QI_WITH_NIGHTLY_TESTS:BOOL=OFF
+
+//Triggers building of perf tests
+QI_WITH_PERF_TESTS:BOOL=OFF
+
+//If OFF, no test will be built, and `qibuild test` won't run any
+// test
+QI_WITH_TESTS:BOOL=ON
+
+ROBOT2_DEPENDS:STRING=ALCOMMON;ALVALUE;ALERROR;QIMESSAGING;QITYPE;BOOST;BOOST_DATE_TIME;BOOST_SIGNALS;RTTOOLS;QI;BOOST_FILESYSTEM;BOOST_PROGRAM_OPTIONS;BOOST_REGEX;BOOST_LOCALE;BOOST_THREAD;BOOST_CHRONO;BOOST_SYSTEM;PTHREAD;RT;DL
+
+//Path to a library.
+RTTOOLS_DEBUG_LIBRARY:FILEPATH=RTTOOLS_DEBUG_LIBRARY-NOTFOUND
+
+//The directory containing a CMake configuration file for RTTOOLS.
+RTTOOLS_DIR:PATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/share/cmake/rttools
+
+RTTOOLS_INCLUDE_DIRS:STRING=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include;
+
+//Path to a library.
+RTTOOLS_LIBRARY:FILEPATH=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/librttools.so
+
+//Cleared.
+RT_DEFINITIONS:STRING=
+
+//The directory containing a CMake configuration file for RT.
+RT_DIR:PATH=/home/thales/.local/share/cmake/qibuild/modules
+
+//Cleared.
+RT_EXECUTABLE:STRING=
+
+//Cleared.
+RT_EXECUTABLE_DEBUG:STRING=
+
 //Value Computed by CMake
 Robot2_BINARY_DIR:STATIC=/home/thales/TCC/v-rep-remote-api/build
 
 //Value Computed by CMake
 Robot2_SOURCE_DIR:STATIC=/home/thales/TCC/v-rep-remote-api/source
+
+//Cleared.
+dl_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libdl.so
+
+//Cleared.
+dlfcn.h_INCLUDE:PATH=/usr/include
 
 //The directory containing a CMake configuration file for octomap/math.
 octomap/math_DIR:PATH=octomap/math_DIR-NOTFOUND
@@ -186,16 +528,201 @@ octomath_DIR:PATH=octomath_DIR-NOTFOUND
 //The directory containing a CMake configuration file for octovis.
 octovis_DIR:PATH=/usr/local/share/octovis
 
+//Cleared.
+pthread.h_INCLUDE:PATH=/usr/include
+
+//Cleared.
+pthread_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libpthread.so
+
 //Dependencies for the target
 remote_api_LIB_DEPENDS:STATIC=general;/opt/ros/kinetic/lib/liboctomap.so;general;/opt/ros/kinetic/lib/liboctomath.so;
+
+//Cleared.
+rt_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/librt.so
+
+//Cleared.
+time.h_INCLUDE:PATH=/usr/include
 
 
 ########################
 # INTERNAL cache entries
 ########################
 
+ALCOMMON_DEPENDS:INTERNAL=ALVALUE;ALERROR;QIMESSAGING;QITYPE;BOOST;BOOST_DATE_TIME;BOOST_SIGNALS;RTTOOLS;QI;BOOST_FILESYSTEM;BOOST_PROGRAM_OPTIONS;BOOST_REGEX;BOOST_LOCALE;BOOST_THREAD;BOOST_CHRONO;BOOST_SYSTEM;PTHREAD;RT;DL
+//ADVANCED property for variable: ALCOMMON_INCLUDE_DIRS
+ALCOMMON_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+ALCOMMON_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libalcommon.so
+ALCOMMON_PACKAGE_FOUND:INTERNAL=TRUE
+ALERROR_DEPENDS:INTERNAL=QI;BOOST_FILESYSTEM;BOOST_PROGRAM_OPTIONS;BOOST_REGEX;BOOST_LOCALE;BOOST_THREAD;BOOST_CHRONO;BOOST_SYSTEM;PTHREAD;DL;RT
+//ADVANCED property for variable: ALERROR_INCLUDE_DIRS
+ALERROR_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+ALERROR_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libalerror.so
+ALERROR_PACKAGE_FOUND:INTERNAL=TRUE
+ALVALUE_DEPENDS:INTERNAL=ALERROR;QIMESSAGING;QITYPE;QI;BOOST_FILESYSTEM;BOOST_PROGRAM_OPTIONS;BOOST_REGEX;DL;RT;BOOST;BOOST_DATE_TIME;BOOST_LOCALE;BOOST_THREAD;BOOST_CHRONO;BOOST_SYSTEM;PTHREAD
+//ADVANCED property for variable: ALVALUE_INCLUDE_DIRS
+ALVALUE_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+ALVALUE_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libalvalue.so
+ALVALUE_PACKAGE_FOUND:INTERNAL=TRUE
+//ADVANCED property for variable: BOOST_CHRONO_DEFINITIONS
+BOOST_CHRONO_DEFINITIONS-ADVANCED:INTERNAL=1
+BOOST_CHRONO_DEPENDS:INTERNAL=BOOST_SYSTEM
+//ADVANCED property for variable: BOOST_CHRONO_EXECUTABLE
+BOOST_CHRONO_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_CHRONO_EXECUTABLE_DEBUG
+BOOST_CHRONO_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_CHRONO_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_CHRONO_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_chrono.so;/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_system.so
+BOOST_CHRONO_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_CHRONO_SEARCHED:INTERNAL=TRUE
+//ADVANCED property for variable: BOOST_DATE_TIME_DEFINITIONS
+BOOST_DATE_TIME_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_DATE_TIME_EXECUTABLE
+BOOST_DATE_TIME_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_DATE_TIME_EXECUTABLE_DEBUG
+BOOST_DATE_TIME_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_DATE_TIME_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_DATE_TIME_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_date_time.so
+BOOST_DATE_TIME_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_DATE_TIME_SEARCHED:INTERNAL=TRUE
+//ADVANCED property for variable: BOOST_FILESYSTEM_DEFINITIONS
+BOOST_FILESYSTEM_DEFINITIONS-ADVANCED:INTERNAL=1
+BOOST_FILESYSTEM_DEPENDS:INTERNAL=BOOST_SYSTEM
+//ADVANCED property for variable: BOOST_FILESYSTEM_EXECUTABLE
+BOOST_FILESYSTEM_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_FILESYSTEM_EXECUTABLE_DEBUG
+BOOST_FILESYSTEM_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_FILESYSTEM_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_FILESYSTEM_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_filesystem.so;/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_system.so
+BOOST_FILESYSTEM_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_FILESYSTEM_SEARCHED:INTERNAL=TRUE
+BOOST_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+//ADVANCED property for variable: BOOST_LOCALE_DEFINITIONS
+BOOST_LOCALE_DEFINITIONS-ADVANCED:INTERNAL=1
+BOOST_LOCALE_DEPENDS:INTERNAL=BOOST_THREAD;PTHREAD;BOOST_CHRONO;BOOST_SYSTEM
+//ADVANCED property for variable: BOOST_LOCALE_EXECUTABLE
+BOOST_LOCALE_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_LOCALE_EXECUTABLE_DEBUG
+BOOST_LOCALE_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_LOCALE_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_LOCALE_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_locale.so
+BOOST_LOCALE_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_LOCALE_SEARCHED:INTERNAL=TRUE
+BOOST_PACKAGE_FOUND:INTERNAL=TRUE
+//ADVANCED property for variable: BOOST_PROGRAM_OPTIONS_DEFINITIONS
+BOOST_PROGRAM_OPTIONS_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_PROGRAM_OPTIONS_EXECUTABLE
+BOOST_PROGRAM_OPTIONS_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_PROGRAM_OPTIONS_EXECUTABLE_DEBUG
+BOOST_PROGRAM_OPTIONS_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_PROGRAM_OPTIONS_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_PROGRAM_OPTIONS_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_program_options.so
+BOOST_PROGRAM_OPTIONS_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_PROGRAM_OPTIONS_SEARCHED:INTERNAL=TRUE
+//ADVANCED property for variable: BOOST_REGEX_DEFINITIONS
+BOOST_REGEX_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_REGEX_EXECUTABLE
+BOOST_REGEX_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_REGEX_EXECUTABLE_DEBUG
+BOOST_REGEX_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_REGEX_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_REGEX_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_regex.so
+BOOST_REGEX_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_REGEX_SEARCHED:INTERNAL=TRUE
+BOOST_SEARCHED:INTERNAL=TRUE
+//ADVANCED property for variable: BOOST_SIGNALS_DEFINITIONS
+BOOST_SIGNALS_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_SIGNALS_EXECUTABLE
+BOOST_SIGNALS_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_SIGNALS_EXECUTABLE_DEBUG
+BOOST_SIGNALS_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_SIGNALS_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_SIGNALS_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_signals.so
+BOOST_SIGNALS_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_SIGNALS_SEARCHED:INTERNAL=TRUE
+//ADVANCED property for variable: BOOST_SYSTEM_DEFINITIONS
+BOOST_SYSTEM_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_SYSTEM_EXECUTABLE
+BOOST_SYSTEM_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_SYSTEM_EXECUTABLE_DEBUG
+BOOST_SYSTEM_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_SYSTEM_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_SYSTEM_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_system.so
+BOOST_SYSTEM_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_SYSTEM_SEARCHED:INTERNAL=TRUE
+//ADVANCED property for variable: BOOST_THREAD_DEFINITIONS
+BOOST_THREAD_DEFINITIONS-ADVANCED:INTERNAL=1
+BOOST_THREAD_DEPENDS:INTERNAL=PTHREAD;BOOST_CHRONO;BOOST_SYSTEM
+//ADVANCED property for variable: BOOST_THREAD_EXECUTABLE
+BOOST_THREAD_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BOOST_THREAD_EXECUTABLE_DEBUG
+BOOST_THREAD_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+BOOST_THREAD_INCLUDE_DIRS:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+BOOST_THREAD_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_thread.so;/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_chrono.so;/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_system.so;/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_date_time.so;/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libboost_atomic.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+BOOST_THREAD_PACKAGE_FOUND:INTERNAL=TRUE
+BOOST_THREAD_SEARCHED:INTERNAL=TRUE
+BUILD_PERF_TESTS:INTERNAL=OFF
+BUILD_TESTS:INTERNAL=ON
+//ADVANCED property for variable: Boost_ATOMIC_LIBRARY_DEBUG
+Boost_ATOMIC_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_ATOMIC_LIBRARY_RELEASE
+Boost_ATOMIC_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_CHRONO_LIBRARY_DEBUG
+Boost_CHRONO_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_CHRONO_LIBRARY_RELEASE
+Boost_CHRONO_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_DATE_TIME_LIBRARY_DEBUG
+Boost_DATE_TIME_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_DATE_TIME_LIBRARY_RELEASE
+Boost_DATE_TIME_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_DEFINITIONS
+Boost_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_EXECUTABLE
+Boost_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_EXECUTABLE_DEBUG
+Boost_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_FILESYSTEM_LIBRARY_DEBUG
+Boost_FILESYSTEM_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_FILESYSTEM_LIBRARY_RELEASE
+Boost_FILESYSTEM_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_INCLUDE_DIR
+Boost_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_INCLUDE_DIRS
+Boost_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_LIBRARIES
+Boost_LIBRARIES-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_LIBRARY_DIR_DEBUG
+Boost_LIBRARY_DIR_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_LIBRARY_DIR_RELEASE
+Boost_LIBRARY_DIR_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_LOCALE_LIBRARY_DEBUG
+Boost_LOCALE_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_LOCALE_LIBRARY_RELEASE
+Boost_LOCALE_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG
+Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE
+Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_REGEX_LIBRARY_DEBUG
+Boost_REGEX_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_REGEX_LIBRARY_RELEASE
+Boost_REGEX_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//Cleared.
+Boost_SEARCHED:INTERNAL=FALSE
+//ADVANCED property for variable: Boost_SIGNALS_LIBRARY_DEBUG
+Boost_SIGNALS_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_SIGNALS_LIBRARY_RELEASE
+Boost_SIGNALS_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_SYSTEM_LIBRARY_DEBUG
+Boost_SYSTEM_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_SYSTEM_LIBRARY_RELEASE
+Boost_SYSTEM_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_THREAD_LIBRARY_DEBUG
+Boost_THREAD_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_THREAD_LIBRARY_RELEASE
+Boost_THREAD_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_AR
 CMAKE_AR-ADVANCED:INTERNAL=1
+CMAKE_BUILD_TYPE:INTERNAL=Debug
 //This is the directory where this CMakeCache.txt was created
 CMAKE_CACHEFILE_DIR:INTERNAL=/home/thales/TCC/v-rep-remote-api/build
 //Major version of cmake used to create the current loaded cache
@@ -283,6 +810,7 @@ CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_MODULE_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO
 CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+CMAKE_MODULE_PATH:INTERNAL=/home/thales/.local/share/cmake;/home/thales/.local/share/cmake/qibuild/..
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
@@ -291,6 +819,7 @@ CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
 CMAKE_OBJDUMP-ADVANCED:INTERNAL=1
+CMAKE_PREFIX_PATH:INTERNAL=/home/thales/TCC/v-rep-remote-api/build/sdk;/home/thales/.local/share/cmake/qibuild/modules/;/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64
 //ADVANCED property for variable: CMAKE_RANLIB
 CMAKE_RANLIB-ADVANCED:INTERNAL=1
 //Path to CMake installation.
@@ -325,6 +854,92 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: DL_DEFINITIONS
+DL_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: DL_EXECUTABLE
+DL_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: DL_EXECUTABLE_DEBUG
+DL_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+DL_INCLUDE_DIRS:INTERNAL=/usr/include
+DL_LIBRARIES:INTERNAL=general;/usr/lib/x86_64-linux-gnu/libdl.so
+DL_PACKAGE_FOUND:INTERNAL=TRUE
+DL_SEARCHED:INTERNAL=TRUE
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
+//ADVANCED property for variable: PTHREAD_DEFINITIONS
+PTHREAD_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: PTHREAD_EXECUTABLE
+PTHREAD_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: PTHREAD_EXECUTABLE_DEBUG
+PTHREAD_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+PTHREAD_INCLUDE_DIRS:INTERNAL=/usr/include
+PTHREAD_LIBRARIES:INTERNAL=general;/usr/lib/x86_64-linux-gnu/libpthread.so
+PTHREAD_PACKAGE_FOUND:INTERNAL=TRUE
+PTHREAD_SEARCHED:INTERNAL=TRUE
+QIMESSAGING_DEPENDS:INTERNAL=QITYPE;QI;BOOST_FILESYSTEM;BOOST_PROGRAM_OPTIONS;BOOST_REGEX;DL;RT;BOOST;BOOST_DATE_TIME;BOOST_LOCALE;BOOST_THREAD;BOOST_CHRONO;BOOST_SYSTEM;PTHREAD
+//ADVANCED property for variable: QIMESSAGING_INCLUDE_DIRS
+QIMESSAGING_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+QIMESSAGING_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libqimessaging.so
+QIMESSAGING_PACKAGE_FOUND:INTERNAL=TRUE
+QITYPE_DEPENDS:INTERNAL=QI;BOOST_FILESYSTEM;BOOST_PROGRAM_OPTIONS;BOOST_REGEX;DL;RT;BOOST;BOOST_DATE_TIME;BOOST_LOCALE;BOOST_THREAD;BOOST_CHRONO;BOOST_SYSTEM;PTHREAD
+//ADVANCED property for variable: QITYPE_INCLUDE_DIRS
+QITYPE_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+QITYPE_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libqitype.so
+QITYPE_PACKAGE_FOUND:INTERNAL=TRUE
+QI_DEPENDS:INTERNAL=BOOST_FILESYSTEM;BOOST_PROGRAM_OPTIONS;BOOST_REGEX;BOOST_LOCALE;BOOST_THREAD;BOOST_CHRONO;BOOST_SYSTEM;PTHREAD;DL;RT
+//ADVANCED property for variable: QI_INCLUDE_DIRS
+QI_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+QI_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/libqi.so
+QI_NIGHTLY_TESTS:INTERNAL=OFF
+QI_PACKAGE_FOUND:INTERNAL=TRUE
+QI_SDK_BIN:INTERNAL=bin
+QI_SDK_CMAKE:INTERNAL=share/cmake
+QI_SDK_CMAKE_MODULES:INTERNAL=cmake
+QI_SDK_CONF:INTERNAL=etc
+QI_SDK_DIR:INTERNAL=/home/thales/TCC/v-rep-remote-api/build/sdk
+QI_SDK_DOC:INTERNAL=share/doc
+QI_SDK_FRAMEWORK:INTERNAL=Frameworks
+QI_SDK_INCLUDE:INTERNAL=include
+QI_SDK_LIB:INTERNAL=lib
+QI_SDK_SHARE:INTERNAL=share
+QI_VIRTUALENV_PATH:INTERNAL=
+//ADVANCED property for variable: ROBOT2_DEPENDS
+ROBOT2_DEPENDS-ADVANCED:INTERNAL=1
+RTTOOLS_DEPENDS:INTERNAL=QI;BOOST_FILESYSTEM;BOOST_PROGRAM_OPTIONS;BOOST_REGEX;BOOST_LOCALE;BOOST_THREAD;BOOST_CHRONO;BOOST_SYSTEM;PTHREAD;DL;RT
+//ADVANCED property for variable: RTTOOLS_INCLUDE_DIRS
+RTTOOLS_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+RTTOOLS_LIBRARIES:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib/librttools.so
+RTTOOLS_PACKAGE_FOUND:INTERNAL=TRUE
+//ADVANCED property for variable: RT_DEFINITIONS
+RT_DEFINITIONS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: RT_EXECUTABLE
+RT_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: RT_EXECUTABLE_DEBUG
+RT_EXECUTABLE_DEBUG-ADVANCED:INTERNAL=1
+RT_INCLUDE_DIRS:INTERNAL=/usr/include
+RT_LIBRARIES:INTERNAL=general;/usr/lib/x86_64-linux-gnu/librt.so
+RT_PACKAGE_FOUND:INTERNAL=TRUE
+RT_SEARCHED:INTERNAL=TRUE
+//Components requested for this build tree.
+_Boost_COMPONENTS_SEARCHED:INTERNAL=atomic;chrono;date_time;filesystem;locale;program_options;regex;signals;system;thread
+//Last used Boost_INCLUDE_DIR value.
+_Boost_INCLUDE_DIR_LAST:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/include
+//Last used Boost_LIBRARY_DIR_DEBUG value.
+_Boost_LIBRARY_DIR_DEBUG_LAST:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib
+//Last used Boost_LIBRARY_DIR_RELEASE value.
+_Boost_LIBRARY_DIR_RELEASE_LAST:INTERNAL=/home/thales/TCC/naoqiworktree/naoqi-sdk/naoqi-sdk-2.1.4.13-linux64/lib
+//Last used Boost_NAMESPACE value.
+_Boost_NAMESPACE_LAST:INTERNAL=boost
+//Last used Boost_USE_MULTITHREADED value.
+_Boost_USE_MULTITHREADED_LAST:INTERNAL=TRUE
+//Last used Boost_USE_STATIC_LIBS value.
+_Boost_USE_STATIC_LIBS_LAST:INTERNAL=OFF
+_dpkg_architecture:INTERNAL=/usr/bin/dpkg-architecture
+//ADVANCED property for variable: dlfcn.h_INCLUDE
+dlfcn.h_INCLUDE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pthread.h_INCLUDE
+pthread.h_INCLUDE-ADVANCED:INTERNAL=1
+qibuild_DIR:INTERNAL=/home/thales/.local/share/cmake/qibuild
+//ADVANCED property for variable: time.h_INCLUDE
+time.h_INCLUDE-ADVANCED:INTERNAL=1
 
