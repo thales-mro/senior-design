@@ -6,7 +6,6 @@ using namespace std;
 
 Communication::Communication(simxInt clientID) {
 	this->clientID = clientID;
-	cout << "I`m alive" << endl;
 
 	//init joints ids for controlled robot
 	for(int i = 0; i < 40; i++) {
@@ -47,12 +46,11 @@ Communication::Communication(simxInt clientID) {
 		simxGetObjectHandle(clientID, robots.at(i).c_str(), &robotsIds[i], simx_opmode_oneshot_wait);
 	}*/
 	simxGetObjectHandle(clientID, ourGoalName.c_str(), &ourGoalId, simx_opmode_oneshot_wait);
-	cout << ourGoalName << " " << ourGoalId << endl;
 	simxGetObjectHandle(clientID, oppGoalName.c_str(), &oppGoalId, simx_opmode_oneshot_wait);
-	cout << oppGoalName << " " << oppGoalId << endl;
 
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Communication::testConnectionVREP() {
 	if(clientID != -1) {
@@ -65,6 +63,8 @@ void Communication::testConnectionVREP() {
 	}
 
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Communication::testConnectionChoregraphe() {
 	AL::ALMotionProxy m("127.0.0.1:39501", 9559);
@@ -80,32 +80,10 @@ void Communication::testConnectionChoregraphe() {
 	AL::ALValue x = 0.2f;
 	AL::ALValue y = 0.2f;
 	AL::ALValue theta = 0.0f;
-	//motion.moveToward(x, y, theta);
 
 }
 
-/*void Communication::updateVariables() {
-	//cout << "Insider: "<< aux[0] << " " << aux[1] << endl;
-	simxGetObjectPosition(clientID, ballId, -1, aux, simx_opmode_streaming);
-	simxGetObjectPosition(clientID, headsIds[0], -1, robot0Coords, simx_opmode_streaming);
-	simxGetObjectPosition(clientID, headsIds[1], -1, robot1Coords, simx_opmode_streaming);
-	simxGetObjectPosition(clientID, headsIds[2], -1, robot2Coords, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, headsIds[0], -1, robot0HeadOrient, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, headsIds[1], -1, robot1HeadOrient, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, headsIds[2], -1, robot2HeadOrient, simx_opmode_streaming);
-
-	simxGetObjectOrientation(clientID, robotsIds[0], -1, robot0Orient, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, robotsIds[1], -1, robot1Orient, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, robotsIds[2], -1, robot2Orient, simx_opmode_streaming);
-
-	simxGetObjectPosition(clientID, oppRobotsIds[0], -1, opp0Coords, simx_opmode_streaming);
-	simxGetObjectPosition(clientID, oppRobotsIds[1], -1, opp1Coords, simx_opmode_streaming);
-	simxGetObjectPosition(clientID, oppRobotsIds[2], -1, opp2Coords, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, oppRobotsIds[0], -1, opp0Orient, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, oppRobotsIds[1], -1, opp1Orient, simx_opmode_streaming);
-	simxGetObjectOrientation(clientID, oppRobotsIds[2], -1, opp2Orient, simx_opmode_streaming);
-}*/
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Communication::updateJointsPositions() {
 	AL::ALMotionProxy m("127.0.0.1:39501", 9559);
@@ -114,16 +92,10 @@ void Communication::updateJointsPositions() {
 	motion.moveInit();
 	sleep(5);
 	m.moveToward(0.0f, 0.0f, 0.0f);
-	//sleep(15);
 	bool first = true;
 	while(true) {
-		//updateVariables();
 		int result = 0;
-		//cout << "Hello, deepest fears " << result << endl;
 		listAngles = m.getAngles("Body", false);
-		//cout << clientID << endl;
-		//simxSetJointTargetPosition(clientID, naoJointsIds0[0], listAngles.at(0), simx_opmode_streaming);
-		//simxSetJointTargetPosition(clientID, naoJointsIds0[1], listAngles.at(1), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[2], listAngles.at(8), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[3], listAngles.at(9), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[4], listAngles.at(10), simx_opmode_streaming);
@@ -162,7 +134,6 @@ void Communication::updateJointsPositions() {
 		simxSetJointTargetPosition(clientID, naoJointsIds0[37], 1.0f - listAngles.at(25), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[38], 1.0f - listAngles.at(25), simx_opmode_streaming);
 		simxSetJointTargetPosition(clientID, naoJointsIds0[39], 1.0f - listAngles.at(25), simx_opmode_streaming);
-		//cout << "I`m alive..." << endl;
 		if(first) {
 			sleep(10);
 			first = false;
@@ -170,12 +141,15 @@ void Communication::updateJointsPositions() {
 		}
 
 	}
-	cout << "I`m about to dieee" << endl;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Communication::startThread() {
 	std::thread t1(&Communication::updateJointsPositions, this);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getBallCoords() {
 	simxGetObjectPosition(clientID, ballId, -1, aux, simx_opmode_oneshot_wait);
@@ -186,6 +160,8 @@ std::vector<simxFloat> Communication::getBallCoords() {
 	}
 	return ballCoords;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getRobot0Coords() {
 	simxGetObjectPosition(clientID, robotsIds[0], -1, aux, simx_opmode_oneshot_wait);
@@ -203,9 +179,10 @@ std::vector<simxFloat> Communication::getRobot0Coords() {
 	return robot0Coords;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::vector<simxFloat> Communication::getRobot1Coords() {
 	simxGetObjectPosition(clientID, robotsIds[1], -1, aux, simx_opmode_oneshot_wait);
-	cout << "Aux: " << aux[0] << " " << aux[1] << endl;
 	if(!(aux[0] != aux[0] || aux[1] != aux[1] || aux[2] != aux[2])) {
 		if(!(std::abs(robot1Coords.at(0) - aux[0]) >= 0.15 || std::abs(robot1Coords.at(1) - aux[1]) >= 0.15)) {
 			robot1Coords.clear();
@@ -215,6 +192,8 @@ std::vector<simxFloat> Communication::getRobot1Coords() {
 	}
 	return robot1Coords;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getRobot2Coords() {
 	simxGetObjectPosition(clientID, robotsIds[2], -1, aux, simx_opmode_oneshot_wait);
@@ -226,6 +205,8 @@ std::vector<simxFloat> Communication::getRobot2Coords() {
 	return robot2Coords;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::vector<simxFloat> Communication::getOpp0Coords() {
 	simxGetObjectPosition(clientID, oppRobotsIds[0], -1, aux, simx_opmode_oneshot_wait);
 	if(!(aux[0] != aux[0] || aux[1] != aux[1] || aux[2] != aux[2])) {
@@ -235,6 +216,8 @@ std::vector<simxFloat> Communication::getOpp0Coords() {
 	}
 	return opp0Coords;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getOpp1Coords() {
 	simxGetObjectPosition(clientID, oppRobotsIds[1], -1, aux, simx_opmode_oneshot_wait);
@@ -246,6 +229,8 @@ std::vector<simxFloat> Communication::getOpp1Coords() {
 	return opp1Coords;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::vector<simxFloat> Communication::getOpp2Coords() {
 	simxGetObjectPosition(clientID, oppRobotsIds[2], -1, aux, simx_opmode_oneshot_wait);
 	if(!(aux[0] != aux[0] || aux[1] != aux[1] || aux[2] != aux[2])) {
@@ -255,6 +240,8 @@ std::vector<simxFloat> Communication::getOpp2Coords() {
 	}
 	return opp2Coords;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getRobot0Orientation() {
 	simxGetObjectOrientation(clientID, robotsIds[0], -1, aux, simx_opmode_streaming);
@@ -266,6 +253,7 @@ std::vector<simxFloat> Communication::getRobot0Orientation() {
 	return robot0Orientation;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getRobot1Orientation() {
 	simxGetObjectOrientation(clientID, robotsIds[1], -1, aux, simx_opmode_streaming);
@@ -277,6 +265,7 @@ std::vector<simxFloat> Communication::getRobot1Orientation() {
 	return robot1Orientation;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getRobot2Orientation() {
 	simxGetObjectOrientation(clientID, robotsIds[2], -1, aux, simx_opmode_streaming);
@@ -288,6 +277,7 @@ std::vector<simxFloat> Communication::getRobot2Orientation() {
 	return robot2Orientation;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getRobot0HeadOrientation() {
 	simxGetObjectOrientation(clientID, headsIds[0], -1, aux, simx_opmode_streaming);
@@ -299,6 +289,8 @@ std::vector<simxFloat> Communication::getRobot0HeadOrientation() {
 	return robot0HeadOrientation;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::vector<simxFloat> Communication::getRobot1HeadOrientation() {
 	simxGetObjectOrientation(clientID, headsIds[1], -1, aux, simx_opmode_streaming);
 	if(!(aux[0] != aux[0] || aux[1] != aux[1] || aux[2] != aux[2])) {
@@ -308,6 +300,8 @@ std::vector<simxFloat> Communication::getRobot1HeadOrientation() {
 	}
 	return robot1HeadOrientation;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getRobot2HeadOrientation() {
 	simxGetObjectOrientation(clientID, headsIds[2], -1, aux, simx_opmode_streaming);
@@ -319,6 +313,8 @@ std::vector<simxFloat> Communication::getRobot2HeadOrientation() {
 	return robot2HeadOrientation;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::vector<simxFloat> Communication::getOurGoalCoords() {
 	simxGetObjectPosition(clientID, ourGoalId, -1, aux, simx_opmode_oneshot_wait);
 	if(!(aux[0] != aux[0] || aux[1] != aux[1] || aux[2] != aux[2])) {
@@ -326,9 +322,10 @@ std::vector<simxFloat> Communication::getOurGoalCoords() {
 		for(simxFloat coords : aux)
 			ourGoalPosition.push_back(coords);
 	}
-	cout << "aaaa " << aux[0] << endl;
 	return ourGoalPosition;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector<simxFloat> Communication::getOppGoalCoords() {
 	simxGetObjectPosition(clientID, oppGoalId, -1, aux, simx_opmode_oneshot_wait);

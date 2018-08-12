@@ -175,10 +175,8 @@ void configOppPlayerInputVariables(Engine *gazeControlEngine, InputVariable *opp
 	oppAngle->setLockValueInRange(false);
 	oppAngle->addTerm(new Triangle("littleToLeft", 0, 0.502, 1.06));
 	oppAngle->addTerm(new Trapezoid("moderateToLeft",0.4807, 0.8403, 3.017, 3.297));
-	//oppAngle->addTerm(new Trapezoid("aLotToLeft",1.057, 1.767, 3.017, 3.297));
 	oppAngle->addTerm(new Triangle("littleToRight", -1.06, -0.502, 0));
 	oppAngle->addTerm(new Trapezoid("moderateToRight", -3.297, -3.017, -0.8403, -0.4807));
-	//oppAngle->addTerm(new Trapezoid("aLotToRight", -3.297, -3.017, -1.767, -1.057));
 	gazeControlEngine->addInputVariable(oppAngle);
 
 	oppConfidence->setName("oppConfidence" + to_string(id));
@@ -295,11 +293,6 @@ void configNavigationOutputVariables(Engine *navigationControlEngine, OutputVari
 	velocityX->addTerm(new Trapezoid("moderateForward", 0.2, 0.3, 0.4, 0.5));
 	velocityX->addTerm(new Trapezoid("moderateFastForward", 0.4, 0.5, 0.7, 0.8));
 	velocityX->addTerm(new Triangle("fastForward", 0.7, 0.85, 1.0));
-	/*velocityX->addTerm(new Triangle("slowForward", 0, 0.2, 0.4));
-	velocityX->addTerm(new Triangle("slowModerateForward", 0.2, 0.4, 0.6));
-	velocityX->addTerm(new Trapezoid("moderateForward", 0.4, 0.5, 0.7, 0.8));
-	velocityX->addTerm(new Trapezoid("moderateFastForward", 0.5, 0.6, 0.8, 1.0));
-	velocityX->addTerm(new Triangle("fastForward", 0.7, 0.85, 1.0));*/
 	navigationControlEngine->addOutputVariable(velocityX);
 
 	velocityTheta->setName("velocityTheta");
@@ -554,7 +547,6 @@ simxFloat calculateUpperLim(simxFloat z_angle, int* flag) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 simxFloat calculateAngle(simxFloat diffX, simxFloat diffY, simxFloat dist) {
-	//simxFloat hip = sqrt(pow(x, 2) + pow(y, 2));
 	simxFloat arcCos = acos((double)diffX/ (double)dist);
 	simxFloat arcSin = asin((double)diffY/ (double)dist);
 	if(arcSin > 0)
@@ -617,7 +609,6 @@ simxFloat calculateDistributionBasedOnAngleInDegrees(simxFloat alpha, simxFloat 
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 void setOccupation(float m[][MAP_Y], float modified[][MAP_Y], int i, int j, simxFloat alpha, simxFloat z_angle, simxFloat dist) {
-	//double angleInDegrees = (std::abs(alpha - z_angle)*180)/M_PI;
 	double aux = calculateDistributionBasedOnAngleInDegrees(alpha, z_angle, dist);
 	m[i][j] = (aux > m[i][j]?aux:m[i][j]);
 	modified[i][j] = 1;
@@ -668,7 +659,6 @@ void updateOccupancyGrid(float m[][MAP_Y], simxFloat robot[], simxFloat orientat
 	simxFloat x_coord = robot[0];
 	simxFloat y_coord = robot[1];
 	simxFloat z_angle = orientation[2];
-	std::cout << "Orientacao: " << z_angle << std::endl;
 	simxFloat sin, cos, dist, x, y, diffX, diffY, upperLim, bottomLim;
 
 	int flag = 0;
@@ -743,56 +733,21 @@ void printGnuPlot(float occupancyGrid[][MAP_Y]) {
 		double startY = FIELD_Y;
 		double stepX = startX, stepY, stepZ;
 		std::vector<std::vector<boost::tuple<double,double,double> > > pts(MAP_X);
-    //std::vector<std::vector<std::vector<double>>> pts(MAP_X);
 		for(int u = 0; u < MAP_X; u++) {
 			pts[u].resize(MAP_Y);
-      //pts[u].resize(MAP_Y);
 			stepY = startY;
 			for(int v = 0; v < MAP_Y; v++) {
-        //pts[u][v].resize(3);
 				stepZ = occupancyGrid[u][v];
-        //pts[u][v][0] = stepX;
-        //pts[u][v][1] = stepY;
-        //pts[u][v][2] = stepZ;
 				pts[u][v] = boost::make_tuple(stepX, stepY, stepZ);
 				stepY -= step;
 			}
 			stepX += step;
 		}
-    //gp << gp.binFile2d(pts, "record") << "with lines title 'vec vec vec'";
-		gp << gp.binFile2d(pts, "record") << "with lines title 'vec of vec of boost::tuple'";
+		gp << gp.binFile2d(pts, "record") << "with lines title 'confidence versus map coordinates'";
 	}
 	gp << std::endl;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-void printGnuPlot2(Gnuplot &gp2Aux, float occupancyGrid[][MAP_Y]) {
-
-	gp2Aux << "set xrange [-6:6]\n";
-	gp2Aux << "set yrange [-6:6]\n";
-	gp2Aux << "set zrange [-1:1]\n";
-	gp2Aux << "set hidden3d nooffset\n";
-	gp2Aux << "splot ";
-	{
-		double step = SCALE;
-		double startX = -FIELD_X;
-		double startY = FIELD_Y;
-		double stepX = startX, stepY, stepZ;
-		std::vector<std::vector<boost::tuple<double,double,double> > > pts(MAP_X);
-		for(int u = 0; u < MAP_X; u++) {
-			pts[u].resize(MAP_Y);
-			stepY = startY;
-			for(int v = 0; v < MAP_Y; v++) {
-				stepZ = occupancyGrid[u][v];
-				pts[u][v] = boost::make_tuple(stepX, stepY, stepZ);
-				stepY -= step;
-			}
-			stepX += step;
-		}
-		gp2Aux << gp2Aux.binFile2d(pts, "record") << "with lines title 'vec of vec of boost::tuple'";
-	}
-	gp2Aux << std::endl;
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char* argv[]) {
@@ -805,7 +760,6 @@ int main(int argc, char* argv[]) {
     */
 
     AL::ALMotionProxy motion("127.0.0.1:39501", 9559);
-		//AL::
 
     std::vector<float> listAngles;
     std::vector<float> parallel;
@@ -813,13 +767,6 @@ int main(int argc, char* argv[]) {
     AL::ALValue x = 0.5f;
     AL::ALValue y = 0.5f;
     AL::ALValue theta = 0.5f;
-
-		//motion.stiffnessInterpolation("Body", 1.0, 1.0);
-
-		//motion.goToPosture('StandZero', 1.0, 1.0);
-		//motion.moveToward(0,0,0);
-    //motion.moveInit();
-    //motion.moveToward(x, y, theta);
 
     simxInt ball_id, goal_left_id, goal_right_id;
     simxFloat ball_coord[3], goal_left_coord[3], goal_right_coord[3], aux_coord[3], ball_confidence;
@@ -850,7 +797,6 @@ int main(int argc, char* argv[]) {
     RuleBlock *gazeControlRuleBlock = new RuleBlock;
 
 		Engine *navigationControlEngine = new Engine;
-		//we already have distanceBall
 		InputVariable *distanceBall = new InputVariable;
 		InputVariable *teamHaveBall = new InputVariable;
 		InputVariable *closestToBall = new InputVariable;
@@ -881,21 +827,11 @@ int main(int argc, char* argv[]) {
     generateNormalDistributionRange();
     generateNormalDistributionFOV();
 
-    cout << "Start connection with V-REP server" << endl;
     auto sim = new Simulator("127.0.0.1", PORT_NUMBER);
     Simulator &vrep = *sim;
     vrep.connectServer();
-    cout << "Server connected! " << vrep.getClientID() << endl;
     Communication comm(vrep.getClientID());
-		// cout << "About to start thread" << endl;
 		auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
-		// //sleep(10);
-		// //motion.moveToward(0.5, 0, 0);
-		//while(true);
-
-		//comm->testConnectionVREP();
-    //comm->testConnectionChoregraphe();
-    cout << "Connections tested" << endl;
 
     simxInt naoJointsIds[24];
     int map[MAP_X][MAP_Y][N_MAP_ELEMENTS];
@@ -914,76 +850,6 @@ int main(int argc, char* argv[]) {
 		ball_coord[0] = auxCoord.at(0);
 		ball_coord[1] = auxCoord.at(1);
 
-
-    /*team_robots_joints.push_back("HeadYaw");
-    team_robots_joints.push_back("HeadYaw#0");
-    team_robots_joints.push_back("HeadYaw#1");
-    team_robots_joints.push_back("HeadYaw#2");
-    team_robots_head.push_back("HeadPitch_link_respondable");
-    team_robots_head.push_back("HeadPitch_link_respondable#0");
-    team_robots_head.push_back("HeadPitch_link_respondable#1");
-    team_robots_head.push_back("HeadPitch_link_respondable#2");
-    opp_robots.push_back("NAO#3");
-    opp_robots.push_back("NAO#4");
-    opp_robots.push_back("NAO#5");
-
-    for(const auto jointName : team_robots_joints) {
-      team_robots_joints_ids.push_back(vrep.getHandle(jointName));
-      std::cout << jointName << std::endl;
-    }
-
-    for(const auto headName : team_robots_head) {
-      team_robots_head_ids.push_back(vrep.getHandle(headName));
-    }
-    for(const auto robotName : opp_robots)
-      opp_robots_ids.push_back(vrep.getHandle(robotName));
-
-    ball_id = vrep.getHandle("Ball");
-    goal_left_id = vrep.getHandle("Goal_left");
-    goal_right_id = vrep.getHandle("Goal_right");
-
-    for(auto robotId : team_robots_joints_ids) {
-      vrep.getObjectPosition(robotId, aux_coord);
-      team_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      vrep.getObjectOrientation(robotId, aux_coord);
-      team_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-    }
-
-    for(const auto robotId : opp_robots_ids) {
-      vrep.getObjectPosition(robotId, aux_coord);
-      opp_robots_coords.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-      vrep.getObjectOrientation(robotId, aux_coord);
-      opp_robots_orient.push_back(boost::make_tuple(aux_coord[0], aux_coord[1], aux_coord[2]));
-    }
-
-    vrep.getObjectPosition(ball_id, ball_coord);
-    vrep.getObjectPosition(goal_left_id, goal_left_coord);
-    vrep.getObjectPosition(goal_right_id, goal_right_coord);
-
-    feedMap(map);
-    simxFloat aux[3];
-    aux[0] = -4.5;
-    for(float i = goal_left_coord[1] - (GOAL_SIZE)/2; i < goal_left_coord[1] + (GOAL_SIZE)/2; i += 0.25 ) {
-      aux[1] = i;
-      updateMap(map, aux, TEAM_GOAL);
-    }
-    aux[0] = goal_right_coord[0];
-    for(float i = goal_right_coord[1] - (GOAL_SIZE)/2; i < goal_right_coord[1] + (GOAL_SIZE)/2; i += 0.25 ) {
-      aux[1] = i;
-      updateMap(map, aux, OPP_GOAL);
-    }
-    //initialize map with robots and ball`s inicial position
-    for(auto const pos : team_robots_coords) {
-      simxFloat coords[3] = {boost::get<0>(pos), boost::get<1>(pos), boost::get<2>(pos)};
-      updateMap(map, coords, TEAM_ROBOT);
-    }
-    for(auto const pos : opp_robots_coords) {
-      simxFloat coords[3] = {boost::get<0>(pos), boost::get<1>(pos), boost::get<2>(pos)};
-      updateMap(map, coords, OPP_ROBOT);
-    }
-    updateMap(map, ball_coord, BALL);
-		*/
-
     float occupancy[MAP_X][MAP_Y], occupancy2[MAP_X][MAP_Y], occupancy3[MAP_X][MAP_Y];
     resetOccupancyGrid(occupancy);
     if(!IS_MAP_SHARED) {
@@ -991,11 +857,9 @@ int main(int argc, char* argv[]) {
       resetOccupancyGrid(occupancy3);
     }
 
-    //auto f = std::async(std::launch::async, &Communication::updateJointsPositions, comm);
-
-    //std::cout.precision(2);
     bool valid;
 		bool first = true;
+		int time = 0;
     while(true) {
       sleep(1);
 			if(first) {
@@ -1011,24 +875,9 @@ int main(int argc, char* argv[]) {
 
 			auxCoords.clear();
 
-			//auxCoords comm.getBallCoords();
-
-			//ball_coord[0] = auxCoords.at(0);
-			//ball_coord[1] = auxCoords.at(1);
-			auxCoords.clear();
-      //cout << "Ball coords: " << ball_coord[0] << " " << ball_coord[1] << endl;
-
 			auxCoords = comm.getRobot0Coords();
-			//cout << "Robot Coordinates " << auxCoords[0] << " " << auxCoords[1] << endl;
       team_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
 			auxCoords.clear();
-			/*auxCoords = comm.getRobot1Coords();
-      team_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
-			auxCoords.clear();
-			auxCoords = comm.getRobot2Coords();
-			team_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
-			auxCoords.clear();*/
-
 			auxCoords = comm.getOpp0Coords();
 			opp_robots_coords.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
 			auxCoords.clear();
@@ -1040,31 +889,16 @@ int main(int argc, char* argv[]) {
 			auxCoords.clear();
 
 			auxCoords = comm.getRobot0Orientation();
-			//cout << "Robot orientation: " << auxCoords.at(2) << endl;
 			team_robots_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
+			cout << auxCoords[2];
 			auxCoords.clear();
-			/*auxCoords = comm.getRobot1Orientation();
-			team_robots_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
-			auxCoords.clear();
-			auxCoords = comm.getRobot2Orientation();
-			team_robots_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
-			auxCoords.clear();*/
 
 			auxCoords = comm.getRobot0HeadOrientation();
-			//cout << "Head orientation: " << auxCoords.at(2) << endl;
 			team_robots_head_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
 			auxCoords.clear();
-			/*auxCoords = comm.getRobot1HeadOrientation();
-			team_robots_head_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
-			auxCoords.clear();
-			auxCoords = comm.getRobot2HeadOrientation();
-			team_robots_head_orient.push_back(boost::make_tuple(auxCoords.at(0),auxCoords.at(1),auxCoords.at(2)));
-			auxCoords.clear();*/
 
-			//cout << "team robots size: " << team_robots_coords.size() << " " << team_robots_head_orient.size() << endl;
       if(IS_MAP_SHARED) {
         updateOccupancyGrid2(occupancy, team_robots_coords, team_robots_head_orient);
-        printGnuPlot(occupancy);
       }
       else {
         std::vector<boost::tuple<simxFloat, simxFloat, simxFloat>> aux;
@@ -1084,11 +918,8 @@ int main(int argc, char* argv[]) {
         aux.push_back(team_robots_coords.at(2));
         aux2.push_back(team_robots_orient.at(2));
         updateOccupancyGrid2(occupancy3, aux, aux2);
-        printGnuPlot2(gpRobot1, occupancy);
-        printGnuPlot2(gpRobot2, occupancy2);
-        printGnuPlot2(gpRobot3, occupancy3);
       }
-			/*
+			/*  -- GAZE CONTROL ROUTINE
       if(IS_MAP_SHARED) {
         ball_confidence = occupancy[convertX(ball_coord[0])][convertY(ball_coord[1])];
         opp_robots_confidence.clear();
@@ -1176,16 +1007,13 @@ int main(int argc, char* argv[]) {
 			simxFloat y_coord = boost::get<1>(team_robots_coords.at(0));
 			simxFloat z_angle = boost::get<2>(team_robots_orient.at(0));
 
-			//cout << "Values: " << x_coord << " " << y_coord << " "<< z_angle << endl;
 			double diffX = ball_coord[0] - x_coord;
 			double diffY = ball_coord[1] - y_coord;
 			double distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
 			double angle = calculateAngle(diffX, diffY, distance);
 			ballReferenceForGazeControl->setValue(distance);
 			double angleForFuzzy = calculateAngleForFuzzy(angle, z_angle);
-			//cout << "ballAngleForFuzzy " << angleForFuzzy << endl;
 			ballAngle->setValue(calculateAngleForFuzzy(angle, z_angle));
-			//cout << "distanceToBall " << distance << endl;
 
 			distanceBall->setValue(distance);
 
@@ -1194,7 +1022,6 @@ int main(int argc, char* argv[]) {
 			distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
 			angle = calculateAngle(diffX, diffY, distance);
 			angleForFuzzy = calculateAngleForFuzzy(angle, z_angle);
-			//cout << "DistanceToOurGoal " << distance << "angleToOurGoal " << angleForFuzzy << endl;
 
 			distanceToOurGoal->setValue(distance);
 			angleToOurGoal->setValue(angleForFuzzy);
@@ -1204,34 +1031,22 @@ int main(int argc, char* argv[]) {
 			distance = sqrt(pow(diffX, 2) + pow(diffY, 2));
 			angle = calculateAngle(diffX, diffY, distance);
 			angleForFuzzy = calculateAngleForFuzzy(angle, z_angle);
-			//cout << "DistanceToOppGoal " << distance << "angleToOppGoal " << angleForFuzzy << endl;
 
 			distanceToOppGoal->setValue(distance);
 			angleToOppGoal->setValue(angleForFuzzy);
-
-			cout << "Fuzzy Variables set:" << endl;
-			//cout << "Distance to ball: " << distanceBall->getValue() << " Angle To Ball: " << ballAngle->getValue() << endl;
-			cout << "Distance to Our Goal: " << distanceToOurGoal->getValue() << " Angle To Our Goal: " << angleToOurGoal->getValue() << endl;
-			//cout << "Distance to Opp Goal: " << distanceToOppGoal->getValue() << " Angle To Opp Goal: " << angleToOppGoal->getValue() << endl;
-
-			//ballAngle->setValue(-2.5);
 			teamHaveBall->setValue(0);
-
-			//distanceBall->setValue(10);
 			closestToBall->setValue(1);
-			//distanceToOppGoal->setValue(5);
-			//angleToOppGoal->setValue(0.5);
 			closestToGoal->setValue(0);
-			//distanceToOurGoal->setValue(0.0);
-			//angleToOurGoal->setValue(2);
 			navigationControlEngine->process();
-			cout << "velocityX: " << velocityX->getValue() << endl;
-			cout << "velocityTheta: " << velocityTheta->getValue() << endl;
+			cout << " "<< velocityX->getValue();
+			cout << " " << velocityTheta->getValue();
 
+			cout << endl;
 			motion.moveToward(velocityX->getValue(), 0, velocityTheta->getValue());
+
+			time++;
     }
 
-    cout << "About to End" << endl;
     vrep.disconnectServer();
   }
   catch (const AL::ALError& e) {
